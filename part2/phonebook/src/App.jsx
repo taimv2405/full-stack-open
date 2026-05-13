@@ -9,10 +9,21 @@ const App = () => {
 
   const addPerson = (e) => {
     e.preventDefault();
-    if (!newName.trim()) return;
+
+    const inputName = newName.trim();
+
+    if (!inputName) return;
+
+    const nameExisted = persons.some(
+      (person) => person.name.toLowerCase() === inputName.toLowerCase(),
+    );
+    if (nameExisted) {
+      alert(`${inputName} is already added to phonebook`);
+      return;
+    }
 
     const personObject = {
-      name: newName,
+      name: inputName,
     };
     setPersons(persons.concat(personObject));
     setNewName('');
