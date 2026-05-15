@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import personService from './services/personService';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
-
-const baseUrl = 'http://localhost:3001/persons';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -13,9 +11,9 @@ const App = () => {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    axios
-      .get(baseUrl)
-      .then((response) => setPersons(response.data))
+    personService
+      .getAll()
+      .then((data) => setPersons(data))
       .catch((error) => {
         console.error('Error fetching data from server:', error);
         alert('Error fetching data from server');
@@ -48,10 +46,10 @@ const App = () => {
 
     const newPerson = { name, number };
 
-    axios
-      .post(baseUrl, newPerson)
-      .then((response) => {
-        setPersons((prev) => [...prev, response.data]);
+    personService
+      .create(newPerson)
+      .then((data) => {
+        setPersons((prev) => [...prev, data]);
         setNewName('');
         setNewNumber('');
       })
