@@ -40,7 +40,13 @@ const App = () => {
     );
 
     if (isDuplicate) {
-      alert(`${name} is already added to phonebook`);
+      const replaceConfirmed = window.confirm(
+        `${name} is already added to phonebook, replace the old number with a new one?`,
+      );
+
+      if (replaceConfirmed) {
+        updatePerson(name, number);
+      }
       return;
     }
 
@@ -76,6 +82,29 @@ const App = () => {
           setPersons((prev) => prev.filter((p) => p.id !== id));
         });
     }
+  };
+
+  const updatePerson = (name, number) => {
+    const personToUpdate = persons.find(
+      (person) => person.name.toLowerCase() === name.toLowerCase(),
+    );
+
+    personService
+      .update(personToUpdate.id, { ...personToUpdate, number })
+      .then((data) => {
+        setPersons((prev) =>
+          prev.map((p) => (p.id === personToUpdate.id ? data : p)),
+        );
+        setNewName('');
+        setNewNumber('');
+      })
+      .catch((error) => {
+        console.error('Error updating person:', error);
+        alert(
+          `Information of '${personToUpdate.name}' has already been removed from server`,
+        );
+        setPersons((prev) => prev.filter((p) => p.id !== personToUpdate.id));
+      });
   };
 
   const searchTerm = search.trim().toLowerCase();
