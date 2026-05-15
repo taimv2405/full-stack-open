@@ -86,7 +86,10 @@ const App = () => {
         .catch((error) => {
           console.error('Delete person failed:', error);
           if (error.response && error.response.status === 404) {
-            notify(`'${personToDelete.name}' was already removed.`, 'error');
+            notify(
+              `'${personToDelete.name}' has already been removed.`,
+              'error',
+            );
             setPersons((prevPersons) =>
               prevPersons.filter((person) => person.id !== personToDelete.id),
             );
@@ -116,7 +119,7 @@ const App = () => {
       .catch((error) => {
         console.error('Update person failed:', error);
         if (error.response && error.response.status === 404) {
-          notify(`'${existingPerson.name}' was already removed.`, 'error');
+          notify(`'${existingPerson.name}' has already been removed.`, 'error');
           setPersons((prevPersons) =>
             prevPersons.filter((person) => person.id !== existingPerson.id),
           );
