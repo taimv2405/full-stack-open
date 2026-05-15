@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as personService from './services/personService';
+import Notification from './components/Notification';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
@@ -9,6 +10,12 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [search, setSearch] = useState('');
+  const [notification, setNotification] = useState(null);
+
+  const notify = (text, type) => {
+    setNotification({ text, type });
+    setTimeout(() => setNotification(null), 5000);
+  };
 
   useEffect(() => {
     personService
@@ -16,7 +23,7 @@ const App = () => {
       .then((returnedPersons) => setPersons(returnedPersons))
       .catch((error) => {
         console.error('Fetch persons failed:', error);
-        alert('Fetch persons failed. Please try again later.');
+        notify('Fetch persons failed. Please try again later.', 'error');
       });
   }, []);
 
@@ -31,7 +38,7 @@ const App = () => {
     const trimmedNumber = newNumber.trim();
 
     if (!trimmedName || !trimmedNumber) {
-      alert('Please fill in both name and number');
+      notify('Please fill in both name and number', 'error');
       return;
     }
 
@@ -57,10 +64,11 @@ const App = () => {
         setPersons((prevPersons) => [...prevPersons, savedPerson]);
         setNewName('');
         setNewNumber('');
+        notify(`Created ${trimmedName}`, 'success');
       })
       .catch((error) => {
         console.error('Create person failed:', error);
-        alert('Create person failed. Please try again later.');
+        notify('Create person failed. Please try again later.', 'error');
       });
   };
 
@@ -73,16 +81,17 @@ const App = () => {
         .deletePersonById(id)
         .then(() => {
           setPersons((prevPersons) => prevPersons.filter((p) => p.id !== id));
+          notify(`Deleted ${personToDelete.name}`, 'success');
         })
         .catch((error) => {
           console.error('Delete person failed:', error);
           if (error.response && error.response.status === 404) {
-            alert(`'${personToDelete.name}' was already removed.`);
+            notify(`'${personToDelete.name}' was already removed.`, 'error');
             setPersons((prevPersons) =>
               prevPersons.filter((person) => person.id !== personToDelete.id),
             );
           } else {
-            alert('Delete person failed. Please try again later.');
+            notify('Delete person failed. Please try again later.', 'error');
           }
         });
     }
@@ -102,16 +111,17 @@ const App = () => {
         );
         setNewName('');
         setNewNumber('');
+        notify(`Updated ${updatedPerson.name}`, 'success');
       })
       .catch((error) => {
         console.error('Update person failed:', error);
         if (error.response && error.response.status === 404) {
-          alert(`'${existingPerson.name}' was already removed.`);
+          notify(`'${existingPerson.name}' was already removed.`, 'error');
           setPersons((prevPersons) =>
             prevPersons.filter((person) => person.id !== existingPerson.id),
           );
         } else {
-          alert('Update person failed. Please try again later.');
+          notify('Update person failed. Please try again later.', 'error');
         }
       });
   };
@@ -124,6 +134,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification notification={notification} />
       <Filter search={search} onChange={handleSearchChange} />
 
       <h3>Add a new</h3>
