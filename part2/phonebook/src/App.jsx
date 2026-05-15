@@ -16,9 +16,10 @@ const App = () => {
     axios
       .get(baseUrl)
       .then((response) => setPersons(response.data))
-      .catch((error) =>
-        console.error('Error fetching data from server:', error),
-      );
+      .catch((error) => {
+        console.error('Error fetching data from server:', error);
+        alert('Error fetching data from server');
+      });
   }, []);
 
   const handleNameChange = (e) => setNewName(e.target.value);
@@ -45,10 +46,19 @@ const App = () => {
       return;
     }
 
-    const newPerson = { name, number, id: crypto.randomUUID() };
-    setPersons([...persons, newPerson]);
-    setNewName('');
-    setNewNumber('');
+    const newPerson = { name, number };
+
+    axios
+      .post(baseUrl, newPerson)
+      .then((response) => {
+        setPersons((prev) => [...prev, response.data]);
+        setNewName('');
+        setNewNumber('');
+      })
+      .catch((error) => {
+        console.error('Error when create:', error);
+        alert('Error when create');
+      });
   };
 
   const searchTerm = search.trim().toLowerCase();
