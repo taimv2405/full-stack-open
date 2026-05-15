@@ -59,6 +59,25 @@ const App = () => {
       });
   };
 
+  const deletePerson = (id) => {
+    const personToDelete = persons.find((person) => person.id === id);
+
+    if (window.confirm(`Delete ${personToDelete.name} ?`)) {
+      personService
+        .remove(id)
+        .then(() => {
+          setPersons((prev) => prev.filter((p) => p.id !== id));
+        })
+        .catch((error) => {
+          console.error('Error deleting person:', error);
+          alert(
+            `Information of '${personToDelete.name}' has already been removed from server`,
+          );
+          setPersons((prev) => prev.filter((p) => p.id !== id));
+        });
+    }
+  };
+
   const searchTerm = search.trim().toLowerCase();
   const personsToShow = persons.filter((person) =>
     person.name.toLowerCase().includes(searchTerm),
@@ -79,7 +98,7 @@ const App = () => {
       />
 
       <h3>Numbers</h3>
-      <Persons personsToShow={personsToShow} />
+      <Persons personsToShow={personsToShow} onDelete={deletePerson} />
     </div>
   );
 };
