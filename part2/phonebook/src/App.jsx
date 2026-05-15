@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import personService from './services/personService';
+import * as personService from './services/personService';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
@@ -12,98 +12,107 @@ const App = () => {
 
   useEffect(() => {
     personService
-      .getAll()
-      .then((data) => setPersons(data))
+      .getAllPersons()
+      .then((returnedPersons) => setPersons(returnedPersons))
       .catch((error) => {
-        console.error('Error fetching data from server:', error);
-        alert('Error fetching data from server');
+        console.error('Fetch persons failed:', error);
+        alert('Fetch persons failed. Please try again later.');
       });
   }, []);
 
-  const handleNameChange = (e) => setNewName(e.target.value);
-  const handleNumberChange = (e) => setNewNumber(e.target.value);
-  const handleSearchChange = (e) => setSearch(e.target.value);
+  const handleNameChange = (event) => setNewName(event.target.value);
+  const handleNumberChange = (event) => setNewNumber(event.target.value);
+  const handleSearchChange = (event) => setSearch(event.target.value);
 
-  const addPerson = (e) => {
-    e.preventDefault();
+  const handleAddPerson = (event) => {
+    event.preventDefault();
 
-    const name = newName.trim();
-    const number = newNumber.trim();
+    const trimmedName = newName.trim();
+    const trimmedNumber = newNumber.trim();
 
-    if (!name || !number) {
+    if (!trimmedName || !trimmedNumber) {
       alert('Please fill in both name and number');
       return;
     }
 
-    const isDuplicate = persons.some(
-      (person) => person.name.toLowerCase() === name.toLowerCase(),
+    const existingPerson = persons.find(
+      (person) => person.name.toLowerCase() === trimmedName.toLowerCase(),
     );
 
-    if (isDuplicate) {
-      const replaceConfirmed = window.confirm(
-        `${name} is already added to phonebook, replace the old number with a new one?`,
+    if (existingPerson) {
+      const isConfirmed = window.confirm(
+        `${trimmedName} is already added to phonebook, replace the old number with a new one?`,
       );
-
-      if (replaceConfirmed) {
-        updatePerson(name, number);
+      if (isConfirmed) {
+        handleUpdatePerson(existingPerson, trimmedNumber);
       }
       return;
     }
 
-    const newPerson = { name, number };
+    const newPerson = { name: trimmedName, number: trimmedNumber };
 
     personService
-      .create(newPerson)
-      .then((data) => {
-        setPersons((prev) => [...prev, data]);
+      .createPerson(newPerson)
+      .then((savedPerson) => {
+        setPersons((prevPersons) => [...prevPersons, savedPerson]);
         setNewName('');
         setNewNumber('');
       })
       .catch((error) => {
-        console.error('Error when create:', error);
-        alert('Error when create');
+        console.error('Create person failed:', error);
+        alert('Create person failed. Please try again later.');
       });
   };
 
-  const deletePerson = (id) => {
+  const handleDeletePerson = (id) => {
     const personToDelete = persons.find((person) => person.id === id);
 
-    if (window.confirm(`Delete ${personToDelete.name} ?`)) {
+    const isConfirmed = window.confirm(`Delete ${personToDelete.name} ?`);
+    if (isConfirmed) {
       personService
-        .remove(id)
+        .deletePersonById(id)
         .then(() => {
-          setPersons((prev) => prev.filter((p) => p.id !== id));
+          setPersons((prevPersons) => prevPersons.filter((p) => p.id !== id));
         })
         .catch((error) => {
-          console.error('Error deleting person:', error);
-          alert(
-            `Information of '${personToDelete.name}' has already been removed from server`,
-          );
-          setPersons((prev) => prev.filter((p) => p.id !== id));
+          console.error('Delete person failed:', error);
+          if (error.response && error.response.status === 404) {
+            alert(`'${personToDelete.name}' was already removed.`);
+            setPersons((prevPersons) =>
+              prevPersons.filter((person) => person.id !== personToDelete.id),
+            );
+          } else {
+            alert('Delete person failed. Please try again later.');
+          }
         });
     }
   };
 
-  const updatePerson = (name, number) => {
-    const personToUpdate = persons.find(
-      (person) => person.name.toLowerCase() === name.toLowerCase(),
-    );
-
+  const handleUpdatePerson = (existingPerson, newNumber) => {
     personService
-      .update(personToUpdate.id, { ...personToUpdate, number })
-      .then((data) => {
-        setPersons((prev) =>
-          prev.map((p) => (p.id === personToUpdate.id ? data : p)),
+      .updatePersonById(existingPerson.id, {
+        ...existingPerson,
+        number: newNumber,
+      })
+      .then((updatedPerson) => {
+        setPersons((prevPersons) =>
+          prevPersons.map((person) =>
+            person.id === existingPerson.id ? updatedPerson : person,
+          ),
         );
         setNewName('');
         setNewNumber('');
       })
       .catch((error) => {
-        console.error('Error updating person:', error);
-        alert(
-          `Information of '${personToUpdate.name}' has already been removed from server`,
-        );
-        setPersons((prev) => prev.filter((p) => p.id !== personToUpdate.id));
+        console.error('Update person failed:', error);
+        if (error.response && error.response.status === 404) {
+          alert(`'${existingPerson.name}' was already removed.`);
+          setPersons((prevPersons) =>
+            prevPersons.filter((person) => person.id !== existingPerson.id),
+          );
+        } else {
+          alert('Update person failed. Please try again later.');
+        }
       });
   };
 
@@ -121,13 +130,13 @@ const App = () => {
       <PersonForm
         name={newName}
         number={newNumber}
-        onSubmit={addPerson}
+        onSubmit={handleAddPerson}
         onNameChange={handleNameChange}
         onNumberChange={handleNumberChange}
       />
 
       <h3>Numbers</h3>
-      <Persons personsToShow={personsToShow} onDelete={deletePerson} />
+      <Persons personsToShow={personsToShow} onDelete={handleDeletePerson} />
     </div>
   );
 };
