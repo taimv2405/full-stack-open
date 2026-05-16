@@ -23,23 +23,26 @@ const App = () => {
     setSelectedCountry(null);
   };
 
-  const countriesToShow = countries.filter((country) => {
-    const countryName = country.name.common.toLowerCase();
-    const filterText = searchQuery.trim().toLowerCase();
-    return countryName.includes(filterText);
-  });
+  const filterText = searchQuery.trim().toLowerCase();
+  const countriesToShow = countries.filter((country) =>
+    country.name.common.toLowerCase().includes(filterText),
+  );
 
-  const exactMatch = countriesToShow.length === 1 ? countriesToShow[0] : null;
-  const countryToDisplay = exactMatch || selectedCountry;
+  const singleResult = countriesToShow.length === 1 ? countriesToShow[0] : null;
+  const countryToDisplay = singleResult || selectedCountry;
 
   return (
     <>
       <Filter searchQuery={searchQuery} onSearchChange={handleSearch} />
-      {searchQuery.trim() && countryToDisplay ? (
-        <CountryDetail country={countryToDisplay} />
-      ) : (
-        <Countries countries={countriesToShow} onSelect={setSelectedCountry} />
-      )}
+      {searchQuery.trim() &&
+        (countryToDisplay ? (
+          <CountryDetail country={countryToDisplay} />
+        ) : (
+          <Countries
+            countries={countriesToShow}
+            onSelect={setSelectedCountry}
+          />
+        ))}
     </>
   );
 };
