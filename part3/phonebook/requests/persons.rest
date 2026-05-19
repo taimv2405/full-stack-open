@@ -8,3 +8,6 @@ GET {{baseUrl}}/info
 
 ### Get person by id
 GET {{baseUrl}}/api/persons/1
+
+### Delete person by id
+DELETE {{baseUrl}}/api/persons/1
