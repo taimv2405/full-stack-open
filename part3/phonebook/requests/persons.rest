@@ -1,4 +1,7 @@
-@baseUrl = http://localhost:3001/api
+@baseUrl = http://localhost:3001
 
 ### Get all persons
-GET {{baseUrl}}/persons
+GET {{baseUrl}}/api/persons
+
+### Get info page
+GET {{baseUrl}}/info
