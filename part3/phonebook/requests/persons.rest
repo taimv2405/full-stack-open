@@ -5,3 +5,6 @@ GET {{baseUrl}}/api/persons
 
 ### Get info page
 GET {{baseUrl}}/info
+
+### Get person by id
+GET {{baseUrl}}/api/persons/1
