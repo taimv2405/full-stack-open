@@ -11,3 +11,12 @@ GET {{baseUrl}}/api/persons/1
 
 ### Delete person by id
 DELETE {{baseUrl}}/api/persons/1
+
+### Create person
+POST {{baseUrl}}/api/persons
+Content-Type: application/json
+
+{
+    "name": "Tai Vo",
+    "number": "032-987654"
+}

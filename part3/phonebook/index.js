@@ -1,6 +1,9 @@
 const express = require('express');
-
 const app = express();
+app.use(express.json());
+
+const PORT = 3001;
+const MAX_ID_VALUE = 1000000;
 
 let persons = [
   {
@@ -24,6 +27,15 @@ let persons = [
     number: '39-23-6423122',
   },
 ];
+
+const generateId = () => {
+  let randomId;
+  do {
+    randomId = String(Math.floor(Math.random() * MAX_ID_VALUE));
+  } while (persons.some((person) => person.id === randomId));
+
+  return randomId;
+};
 
 app.get('/api/persons', (request, response) => {
   response.json(persons);
@@ -61,7 +73,30 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end();
 });
 
-const PORT = 3001;
+app.post('/api/persons', (request, response) => {
+  const { name, number } = request.body;
+
+  if (typeof name !== 'string') {
+    return response.status(400).json({ error: 'name must be a string' });
+  }
+
+  if (typeof number !== 'string') {
+    return response.status(400).json({ error: 'number must be a string' });
+  }
+
+  const trimmedName = name.trim();
+  const trimmedNumber = number.trim();
+
+  const newPerson = {
+    id: generateId(),
+    name: trimmedName,
+    number: trimmedNumber,
+  };
+
+  persons = [...persons, newPerson];
+
+  response.status(201).json(newPerson);
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
