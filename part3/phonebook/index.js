@@ -33,10 +33,10 @@ app.get('/info', (request, response) => {
   const personsCount = persons.length;
   const currentTime = new Date().toString();
 
-  const infoContent = `
-    <p>Phonebook has info for ${personsCount} people</p>
-    <p>${currentTime}</p>
-  `;
+  const infoContent = [
+    `<p>Phonebook has info for ${personsCount} people</p>`,
+    `<p>${currentTime}</p>`,
+  ].join('\n');
 
   response.send(infoContent);
 });
