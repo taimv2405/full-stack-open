@@ -37,6 +37,11 @@ const generateId = () => {
   return randomId;
 };
 
+const isNameTaken = (name) => {
+  const newName = name.toLowerCase();
+  return persons.some((person) => person.name.toLowerCase() === newName);
+};
+
 app.get('/api/persons', (request, response) => {
   response.json(persons);
 });
@@ -86,6 +91,18 @@ app.post('/api/persons', (request, response) => {
 
   const trimmedName = name.trim();
   const trimmedNumber = number.trim();
+
+  if (!trimmedName) {
+    return response.status(400).json({ error: 'name is missing' });
+  }
+
+  if (!trimmedNumber) {
+    return response.status(400).json({ error: 'number is missing' });
+  }
+
+  if (isNameTaken(trimmedName)) {
+    return response.status(409).json({ error: 'name must be unique' });
+  }
 
   const newPerson = {
     id: generateId(),
