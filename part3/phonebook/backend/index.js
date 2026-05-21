@@ -1,5 +1,8 @@
+require('dotenv').config();
 const express = require('express');
-var morgan = require('morgan');
+const morgan = require('morgan');
+
+const Person = require('./models/person');
 
 const app = express();
 
@@ -56,7 +59,17 @@ const isNameTaken = (name) => {
 };
 
 app.get('/api/persons', (request, response) => {
-  response.json(persons);
+  Person.find({})
+    .then((persons) => response.json(persons))
+    .catch((error) => {
+      console.error(
+        '[GET /api/persons] Failed to fetch persons:',
+        error.message,
+      );
+      response.status(500).json({
+        error: 'Internal server error while fetching phonebook entries',
+      });
+    });
 });
 
 app.get('/info', (request, response) => {
