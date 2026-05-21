@@ -13,7 +13,7 @@ app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :data'),
 );
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const MAX_ID_VALUE = 1000000;
 
 let persons = [
