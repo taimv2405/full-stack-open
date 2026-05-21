@@ -44,20 +44,6 @@ let persons = [
   },
 ];
 
-const generateId = () => {
-  let randomId;
-  do {
-    randomId = String(Math.floor(Math.random() * MAX_ID_VALUE));
-  } while (persons.some((person) => person.id === randomId));
-
-  return randomId;
-};
-
-const isNameTaken = (name) => {
-  const newName = name.toLowerCase();
-  return persons.some((person) => person.name.toLowerCase() === newName);
-};
-
 app.get('/api/persons', (request, response) => {
   Person.find({})
     .then((persons) => response.json(persons))
@@ -126,19 +112,23 @@ app.post('/api/persons', (request, response) => {
     return response.status(400).json({ error: 'number is missing' });
   }
 
-  if (isNameTaken(trimmedName)) {
-    return response.status(409).json({ error: 'name must be unique' });
-  }
-
-  const newPerson = {
-    id: generateId(),
+  const newPerson = new Person({
     name: trimmedName,
     number: trimmedNumber,
-  };
+  });
 
-  persons = [...persons, newPerson];
-
-  response.status(201).json(newPerson);
+  newPerson
+    .save()
+    .then((savedPerson) => response.status(201).json(savedPerson))
+    .catch((error) => {
+      console.error(
+        '[POST /api/persons] Failed to create person:',
+        error.message,
+      );
+      response.status(500).json({
+        error: 'Internal server error while creating phonebook entry',
+      });
+    });
 });
 
 app.listen(PORT, () => {
