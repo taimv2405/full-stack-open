@@ -67,8 +67,9 @@ const App = () => {
         notify(`Created ${trimmedName}`, 'success');
       })
       .catch((error) => {
-        console.error('Create person failed:', error);
-        notify('Create person failed. Please try again later.', 'error');
+        const errorMessage = error.response.data.error;
+        console.error('Create person failed:', errorMessage);
+        notify(errorMessage, 'error');
       });
   };
 
@@ -117,14 +118,15 @@ const App = () => {
         notify(`Updated ${updatedPerson.name}`, 'success');
       })
       .catch((error) => {
-        console.error('Update person failed:', error);
+        const errorMessage = error.response.data.error;
+        console.error('Update person failed:', errorMessage);
         if (error.response && error.response.status === 404) {
           notify(`'${existingPerson.name}' has already been removed.`, 'error');
           setPersons((prevPersons) =>
             prevPersons.filter((person) => person.id !== existingPerson.id),
           );
         } else {
-          notify('Update person failed. Please try again later.', 'error');
+          notify(errorMessage, 'error');
         }
       });
   };

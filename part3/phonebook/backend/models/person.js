@@ -11,8 +11,17 @@ mongoose
   .catch((error) => console.error('Database operation failed', error.message));
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+    trim: true,
+  },
+  number: {
+    type: String,
+    required: true,
+    trim: true,
+  },
 });
 
 personSchema.set('toJSON', {
