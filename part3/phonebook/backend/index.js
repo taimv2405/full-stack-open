@@ -19,7 +19,6 @@ app.use(
 app.use(express.static('dist'));
 
 const PORT = process.env.PORT || 3001;
-const MAX_ID_VALUE = 1000000;
 
 let persons = [
   {
@@ -44,18 +43,10 @@ let persons = [
   },
 ];
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
   Person.find({})
     .then((persons) => response.json(persons))
-    .catch((error) => {
-      console.error(
-        '[GET /api/persons] Failed to fetch persons:',
-        error.message,
-      );
-      response.status(500).json({
-        error: 'Internal server error while fetching phonebook entries',
-      });
-    });
+    .catch((error) => next(error));
 });
 
 app.get('/info', (request, response) => {
@@ -82,25 +73,16 @@ app.get('/api/persons/:id', (request, response) => {
   response.json(targetPerson);
 });
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   const { id } = request.params;
   Person.findByIdAndDelete(id)
     .then(() => {
       response.status(204).end();
     })
-    .catch((error) => {
-      console.error(
-        '[DELETE /api/persons/:id] Failed to delete person:',
-        error.message,
-      );
-      if (error.name === 'CastError') {
-        return response.status(400).json({ error: 'malformed id' });
-      }
-      response.status(500).json({ error: 'Internal server error' });
-    });
+    .catch((error) => next(error));
 });
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const { name, number } = request.body;
 
   if (typeof name !== 'string') {
@@ -130,16 +112,24 @@ app.post('/api/persons', (request, response) => {
   newPerson
     .save()
     .then((savedPerson) => response.status(201).json(savedPerson))
-    .catch((error) => {
-      console.error(
-        '[POST /api/persons] Failed to create person:',
-        error.message,
-      );
-      response.status(500).json({
-        error: 'Internal server error while creating phonebook entry',
-      });
-    });
+    .catch((error) => next(error));
 });
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).json({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+  if (error.name === 'CastError') {
+    return response.status(400).json({ error: 'malformed id' });
+  }
+  next(error);
+};
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
