@@ -10,7 +10,7 @@ GET {{baseUrl}}/info
 GET {{baseUrl}}/api/persons/1
 
 ### Delete person by id
-DELETE {{baseUrl}}/api/persons/1
+DELETE {{baseUrl}}/api/persons/6a0ebde1ca8e4aa1f6f86746
 
 ### Create person
 POST {{baseUrl}}/api/persons
