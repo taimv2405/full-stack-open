@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static('dist'));
 
-morgan.token('data', (request, response) => {
+morgan.token('data', (request) => {
   return JSON.stringify(request.body);
 });
 
