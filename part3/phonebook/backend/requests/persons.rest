@@ -20,3 +20,11 @@ Content-Type: application/json
     "name": "Tai Vo",
     "number": "032-987654"
 }
+
+### Edit person number
+PUT {{baseUrl}}/api/persons/6a0eec97da24097dbaa68076
+Content-Type: application/json
+
+{
+    "number": "37654"
+}

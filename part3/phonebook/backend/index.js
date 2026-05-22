@@ -108,6 +108,32 @@ app.post('/api/persons', (request, response, next) => {
     .catch((error) => next(error));
 });
 
+app.put('/api/persons/:id', (request, response, next) => {
+  const { id } = request.params;
+  const { number } = request.body;
+
+  const validNumber = validateAndTrim(number);
+  if (!validNumber) {
+    return response
+      .status(400)
+      .json({ error: 'number is missing or invalid format' });
+  }
+
+  Person.findById(id)
+    .then((returnedPerson) => {
+      if (!returnedPerson) {
+        return response.status(404).json({ error: 'Person not found' });
+      }
+
+      returnedPerson.number = validNumber;
+
+      return returnedPerson.save().then((savedPerson) => {
+        response.json(savedPerson);
+      });
+    })
+    .catch((error) => next(error));
+});
+
 const unknownEndpoint = (request, response) => {
   response.status(404).json({ error: 'unknown endpoint' });
 };
