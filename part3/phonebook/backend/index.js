@@ -3,6 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 
 const Person = require('./models/person');
+const { validateAndTrim } = require('./utils/validators');
 
 const app = express();
 
@@ -85,29 +86,21 @@ app.delete('/api/persons/:id', (request, response, next) => {
 app.post('/api/persons', (request, response, next) => {
   const { name, number } = request.body;
 
-  if (typeof name !== 'string') {
-    return response.status(400).json({ error: 'name must be a string' });
+  const validName = validateAndTrim(name);
+  if (!validName) {
+    return response
+      .status(400)
+      .json({ error: 'name is missing or invalid format' });
   }
 
-  if (typeof number !== 'string') {
-    return response.status(400).json({ error: 'number must be a string' });
+  const validNumber = validateAndTrim(number);
+  if (!validNumber) {
+    return response
+      .status(400)
+      .json({ error: 'number is missing or invalid format' });
   }
 
-  const trimmedName = name.trim();
-  const trimmedNumber = number.trim();
-
-  if (!trimmedName) {
-    return response.status(400).json({ error: 'name is missing' });
-  }
-
-  if (!trimmedNumber) {
-    return response.status(400).json({ error: 'number is missing' });
-  }
-
-  const newPerson = new Person({
-    name: trimmedName,
-    number: trimmedNumber,
-  });
+  const newPerson = new Person({ name: validName, number: validNumber });
 
   newPerson
     .save()
