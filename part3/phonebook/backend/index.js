@@ -3,7 +3,6 @@ const express = require('express');
 const morgan = require('morgan');
 
 const Person = require('./models/person');
-const { validateAndTrim } = require('./utils/validators');
 
 const app = express();
 
@@ -66,21 +65,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 app.post('/api/persons', (request, response, next) => {
   const { name, number } = request.body;
 
-  const validName = validateAndTrim(name);
-  if (!validName) {
-    return response
-      .status(400)
-      .json({ error: 'name is missing or invalid format' });
-  }
-
-  const validNumber = validateAndTrim(number);
-  if (!validNumber) {
-    return response
-      .status(400)
-      .json({ error: 'number is missing or invalid format' });
-  }
-
-  const newPerson = new Person({ name: validName, number: validNumber });
+  const newPerson = new Person({ name, number });
 
   newPerson
     .save()
@@ -92,20 +77,13 @@ app.put('/api/persons/:id', (request, response, next) => {
   const { id } = request.params;
   const { number } = request.body;
 
-  const validNumber = validateAndTrim(number);
-  if (!validNumber) {
-    return response
-      .status(400)
-      .json({ error: 'number is missing or invalid format' });
-  }
-
   Person.findById(id)
     .then((returnedPerson) => {
       if (!returnedPerson) {
         return response.status(404).json({ error: 'Person not found' });
       }
 
-      returnedPerson.number = validNumber;
+      returnedPerson.number = number;
 
       return returnedPerson.save().then((savedPerson) => {
         response.json(savedPerson);
@@ -124,7 +102,10 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message);
   if (error.name === 'CastError') {
     return response.status(400).json({ error: 'malformed id' });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message });
   }
+
   next(error);
 };
 
