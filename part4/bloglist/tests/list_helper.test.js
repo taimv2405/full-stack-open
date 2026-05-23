@@ -2,12 +2,6 @@ const { test, describe } = require('node:test');
 const assert = require('node:assert');
 const listHelper = require('../utils/list_helper');
 
-test('dummy returns one', () => {
-  const blogs = [];
-  const result = listHelper.dummy(blogs);
-  assert.strictEqual(result, 1);
-});
-
 const emptyList = [];
 
 const listWithOneBlog = [
@@ -48,6 +42,37 @@ const listWithMultipleBlogs = [
   },
 ];
 
+const listWithFavoriteBlogTies = [
+  ...listWithMultipleBlogs,
+  {
+    _id: '5a422b3a1b54a676234d17fa',
+    title: 'Another highly liked blog',
+    author: 'John Doe',
+    url: 'http://example.com',
+    likes: 12,
+    __v: 0,
+  },
+];
+
+const listWithAuthorTies = [
+  ...listWithMultipleBlogs,
+  {
+    _id: '5a422b3a1b54a676234d17fb',
+    title: 'Another React pattern',
+    author: 'Michael Chan',
+    url: 'http://example.com/2',
+    likes: 10,
+  },
+];
+
+describe('dummy', () => {
+  test('returns one', () => {
+    const blogs = [];
+    const result = listHelper.dummy(blogs);
+    assert.strictEqual(result, 1);
+  });
+});
+
 describe('total likes', () => {
   test('of empty list is zero', () => {
     const result = listHelper.totalLikes(emptyList);
@@ -82,19 +107,7 @@ describe('favorite blog', () => {
   });
 
   test('when multiple blogs have the same top likes, returns the first one encountered', () => {
-    const listWithTies = [
-      ...listWithMultipleBlogs,
-      {
-        _id: '5a422b3a1b54a676234d17fa',
-        title: 'Another highly liked blog',
-        author: 'John Doe',
-        url: 'http://example.com',
-        likes: 12,
-        __v: 0,
-      },
-    ];
-
-    const result = listHelper.favoriteBlog(listWithTies);
+    const result = listHelper.favoriteBlog(listWithFavoriteBlogTies);
     assert.deepStrictEqual(result, listWithMultipleBlogs[2]);
   });
 });
@@ -116,20 +129,43 @@ describe('most blogs', () => {
   });
 
   test('when multiple authors have the same top amount of blogs, returns one of them', () => {
-    const listWithTies = [
-      ...listWithMultipleBlogs,
-      {
-        _id: '5a422b3a1b54a676234d17fa',
-        title: 'Another React pattern',
-        author: 'Michael Chan',
-        url: 'http://example.com/2',
-        likes: 10,
-        __v: 0,
-      },
-    ];
-
-    const result = listHelper.mostBlogs(listWithTies);
+    const result = listHelper.mostBlogs(listWithAuthorTies);
 
     assert.deepStrictEqual(result, { author: 'Michael Chan', blogs: 2 });
+  });
+});
+
+describe('most likes', () => {
+  test('of empty list returns null', () => {
+    const result = listHelper.mostLikes(emptyList);
+    assert.strictEqual(result, null);
+  });
+
+  test('when list has only one blog, returns the author and likes of that blog', () => {
+    const result = listHelper.mostLikes(listWithOneBlog);
+    assert.deepStrictEqual(result, { author: 'Edsger W. Dijkstra', likes: 5 });
+  });
+
+  test('of a bigger list, returns the author who has the largest amount of likes', () => {
+    const result = listHelper.mostLikes(listWithMultipleBlogs);
+    assert.deepStrictEqual(result, { author: 'Edsger W. Dijkstra', likes: 17 });
+  });
+
+  test('when multiple authors have the same top likes, returns one of them', () => {
+    const result = listHelper.mostLikes(listWithAuthorTies);
+
+    const allowedResults = [
+      { author: 'Michael Chan', likes: 17 },
+      { author: 'Edsger W. Dijkstra', likes: 17 },
+    ];
+
+    const isValidResult = allowedResults.some(
+      (res) => res.author === result.author && res.likes === result.likes,
+    );
+
+    assert.ok(
+      isValidResult,
+      `Expected result to be one of ${JSON.stringify(allowedResults)}, but got ${JSON.stringify(result)}`,
+    );
   });
 });
