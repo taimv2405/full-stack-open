@@ -1,10 +1,10 @@
 @port = {{$dotenv PORT}}
 @baseUrl = http://localhost:{{port}}
 
-### Get all persons
+### Get all blogs
 GET {{baseUrl}}/api/blogs
 
-### Create person
+### Create blog
 POST {{baseUrl}}/api/blogs
 Content-Type: application/json
 
@@ -12,5 +12,5 @@ Content-Type: application/json
     "title": "Canonical string reduction",
     "author": "Edsger W. Dijkstra",
     "url": "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-    "likes": "12"
+    "likes": 12
 }
