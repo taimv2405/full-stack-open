@@ -98,3 +98,38 @@ describe('favorite blog', () => {
     assert.deepStrictEqual(result, listWithMultipleBlogs[2]);
   });
 });
+
+describe('most blogs', () => {
+  test('of empty list returns null', () => {
+    const result = listHelper.mostBlogs(emptyList);
+    assert.strictEqual(result, null);
+  });
+
+  test('when list has only one blog, returns the author of that blog', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog);
+    assert.deepStrictEqual(result, { author: 'Edsger W. Dijkstra', blogs: 1 });
+  });
+
+  test('of a bigger list, returns the author who has the largest amount of blogs', () => {
+    const result = listHelper.mostBlogs(listWithMultipleBlogs);
+    assert.deepStrictEqual(result, { author: 'Edsger W. Dijkstra', blogs: 2 });
+  });
+
+  test('when multiple authors have the same top amount of blogs, returns one of them', () => {
+    const listWithTies = [
+      ...listWithMultipleBlogs,
+      {
+        _id: '5a422b3a1b54a676234d17fa',
+        title: 'Another React pattern',
+        author: 'Michael Chan',
+        url: 'http://example.com/2',
+        likes: 10,
+        __v: 0,
+      },
+    ];
+
+    const result = listHelper.mostBlogs(listWithTies);
+
+    assert.deepStrictEqual(result, { author: 'Michael Chan', blogs: 2 });
+  });
+});
