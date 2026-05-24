@@ -37,6 +37,28 @@ describe('Blog API Integration Tests', () => {
         });
       });
     });
+
+    describe('POST /api/blogs', () => {
+      test('successfully creates a new blog post', async () => {
+        const newBlog = {
+          title: 'First class tests',
+          author: 'Robert C. Martin',
+          url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
+          likes: 10,
+        };
+
+        const response = await api
+          .post('/api/blogs')
+          .send(newBlog)
+          .expect(201)
+          .expect('Content-Type', /application\/json/);
+
+        const blogsAtEnd = await helper.blogsInDb();
+
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1);
+        assert(blogsAtEnd.some((blog) => blog.title === newBlog.title));
+      });
+    });
   });
 
   describe('when database is completely empty', () => {
