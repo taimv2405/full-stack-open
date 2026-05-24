@@ -113,6 +113,27 @@ describe('Blog API Integration Tests', () => {
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
       });
     });
+
+    describe('DELETE /api/blogs/:id', () => {
+      test('succeeds with status code 204 if id is valid', async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToDelete = blogsAtStart[0];
+
+        await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1);
+        assert(!blogsAtEnd.some((blog) => blog.id === blogToDelete.id));
+      });
+
+      test('responds with status code 204 if id does not exist', async () => {
+        const nonExistingId = new mongoose.Types.ObjectId();
+        await api.delete(`/api/blogs/${nonExistingId}`).expect(204);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+      });
+    });
   });
 
   describe('when database is completely empty', () => {
