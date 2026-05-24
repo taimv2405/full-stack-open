@@ -7,6 +7,9 @@ morgan.token('data', (request) => {
 
 const requestLogger = morgan(
   ':method :url :status :res[content-length] - :response-time ms :data',
+  {
+    skip: () => process.env.NODE_ENV === 'test',
+  },
 );
 
 const unknownEndpoint = (request, response) => {
