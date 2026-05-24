@@ -58,6 +58,28 @@ describe('Blog API Integration Tests', () => {
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1);
         assert(blogsAtEnd.some((blog) => blog.title === newBlog.title));
       });
+
+      test('defaults to the value 0 if the likes property is missing', async () => {
+        const newBlog = {
+          title: 'First class tests',
+          author: 'Robert C. Martin',
+          url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
+        };
+
+        const response = await api
+          .post('/api/blogs')
+          .send(newBlog)
+          .expect(201)
+          .expect('Content-Type', /application\/json/);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        const savedBlog = blogsAtEnd.find(
+          (blog) => blog.id === response.body.id,
+        );
+
+        assert.ok(savedBlog, 'Blog should be explicitly saved in the database');
+        assert.strictEqual(savedBlog.likes, 0);
+      });
     });
   });
 
