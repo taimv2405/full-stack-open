@@ -24,6 +24,18 @@ describe('Blog API Integration Tests', () => {
           .expect('Content-Type', /application\/json/);
         assert.strictEqual(response.body.length, helper.initialBlogs.length);
       });
+
+      test('the unique identifier property of the blog posts is named id', async () => {
+        const response = await api
+          .get('/api/blogs')
+          .expect(200)
+          .expect('Content-Type', /application\/json/);
+        response.body.forEach((blog) => {
+          assert.ok(blog.id, "Blog is missing the 'id' property");
+          assert.strictEqual(blog._id, undefined);
+          assert.strictEqual(blog.__v, undefined);
+        });
+      });
     });
   });
 
