@@ -134,6 +134,34 @@ describe('Blog API Integration Tests', () => {
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
       });
     });
+
+    describe('PUT /api/blogs/:id', () => {
+      test('succeeds with status code 200 if id is valid', async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToUpdate = blogsAtStart[0];
+        blogToUpdate.likes = blogToUpdate.likes + 5;
+
+        await api
+          .put(`/api/blogs/${blogToUpdate.id}`)
+          .send(blogToUpdate)
+          .expect(200);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        const updatedBlog = blogsAtEnd.find(
+          (blog) => blog.id === blogToUpdate.id,
+        );
+
+        assert.strictEqual(updatedBlog.likes, blogToUpdate.likes);
+      });
+
+      test('responds with status code 404 if id does not exist', async () => {
+        const nonExistingId = new mongoose.Types.ObjectId();
+        await api
+          .put(`/api/blogs/${nonExistingId}`)
+          .send({ likes: 100 })
+          .expect(404);
+      });
+    });
   });
 
   describe('when database is completely empty', () => {
