@@ -47,7 +47,7 @@ describe('Blog API Integration Tests', () => {
           likes: 10,
         };
 
-        const response = await api
+        await api
           .post('/api/blogs')
           .send(newBlog)
           .expect(201)
@@ -79,6 +79,38 @@ describe('Blog API Integration Tests', () => {
 
         assert.ok(savedBlog, 'Blog should be explicitly saved in the database');
         assert.strictEqual(savedBlog.likes, 0);
+      });
+
+      test('responds with status code 400 if the title is missing', async () => {
+        const newBlog = {
+          author: 'Robert C. Martin',
+          url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
+        };
+
+        await api
+          .post('/api/blogs')
+          .send(newBlog)
+          .expect(400)
+          .expect('Content-Type', /application\/json/);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+      });
+
+      test('responds with status code 400 if the url is missing', async () => {
+        const newBlog = {
+          author: 'Robert C. Martin',
+          title: 'First class tests',
+        };
+
+        await api
+          .post('/api/blogs')
+          .send(newBlog)
+          .expect(400)
+          .expect('Content-Type', /application\/json/);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
       });
     });
   });
