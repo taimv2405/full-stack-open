@@ -25,8 +25,14 @@ const errorHandler = (error, request, response, _next) => {
     return response.status(400).json({ error: error.message });
   } else if (error.type === 'entity.parse.failed') {
     return response.status(400).json({ error: 'Malformed JSON payload' });
+  } else if (
+    error.name === 'MongoServerError' &&
+    error.message.includes('E11000 duplicate key error')
+  ) {
+    return response
+      .status(409)
+      .json({ error: 'expected `username` to be unique' });
   }
-
   return response.status(500).json({ error: 'Internal server error' });
 };
 

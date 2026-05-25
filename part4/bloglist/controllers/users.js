@@ -28,18 +28,20 @@ usersRouter.post('/', async (request, response) => {
   }
 
   const trimmedUsername = username.trim();
-  const trimmedPassword = password.trim();
 
-  if (!trimmedUsername || !trimmedPassword) {
+  if (!trimmedUsername || !password) {
     return response
       .status(400)
       .json({ error: 'username and password cannot be empty' });
   }
 
-  const passwordHash = await bcrypt.hash(
-    trimmedPassword,
-    config.BCRYPT_SALT_ROUNDS,
-  );
+  if (password.length < 3) {
+    return response
+      .status(400)
+      .json({ error: 'password must be at least 3 characters long' });
+  }
+
+  const passwordHash = await bcrypt.hash(password, config.BCRYPT_SALT_ROUNDS);
 
   const user = new User({
     username: trimmedUsername,
