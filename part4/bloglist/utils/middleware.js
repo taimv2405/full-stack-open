@@ -32,6 +32,8 @@ const errorHandler = (error, request, response, _next) => {
     return response
       .status(409)
       .json({ error: 'expected `username` to be unique' });
+  } else if (error.name === 'JsonWebTokenError') {
+    return response.status(401).json({ error: 'token invalid' });
   }
   return response.status(500).json({ error: 'Internal server error' });
 };
