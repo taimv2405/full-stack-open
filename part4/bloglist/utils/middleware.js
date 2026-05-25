@@ -23,6 +23,8 @@ const errorHandler = (error, request, response, _next) => {
     return response.status(400).json({ error: 'Malformed ID' });
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message });
+  } else if (error.type === 'entity.parse.failed') {
+    return response.status(400).json({ error: 'Malformed JSON payload' });
   }
 
   return response.status(500).json({ error: 'Internal server error' });
