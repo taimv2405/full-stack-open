@@ -28,7 +28,23 @@ blogsRouter.post('/', async (request, response) => {
 });
 
 blogsRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id);
+  const decodedToken = jwt.verify(request.token, config.SECRET);
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'invalid token' });
+  }
+
+  const blog = await Blog.findById(request.params.id);
+  if (!blog) {
+    return response
+      .status(404)
+      .json({ error: 'blog not found or already deleted' });
+  }
+
+  if (!blog.user || blog.user.toString() !== decodedToken.id) {
+    return response.status(403).json({ error: 'no permission' });
+  }
+
+  await blog.deleteOne();
   response.status(204).end();
 });
 
