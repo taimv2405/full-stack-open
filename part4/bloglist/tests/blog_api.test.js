@@ -2,18 +2,45 @@ const { test, after, beforeEach, describe } = require('node:test');
 const assert = require('node:assert');
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+const bcrypt = require('bcrypt');
 
 const app = require('../app');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const helper = require('./test_helper');
+const config = require('../utils/config');
 
 const api = supertest(app);
+
+let token = null;
 
 describe('Blog API Integration Tests', () => {
   describe('when there is initially some blogs saved', () => {
     beforeEach(async () => {
+      await User.deleteMany({});
+
+      const DEFAULT_PASSWORD = '123456';
+      const passwordHash = await bcrypt.hash(
+        DEFAULT_PASSWORD,
+        config.BCRYPT_SALT_ROUNDS,
+      );
+
+      await User.insertMany(
+        helper.initialUsers.map((user) => ({ ...user, passwordHash })),
+      );
+
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'anna', password: '123456' });
+      token = response.body.token;
+
+      const user = await User.findOne({ username: 'anna' });
+      const userId = user._id;
+
       await Blog.deleteMany({});
-      await Blog.insertMany(helper.initialBlogs);
+      await Blog.insertMany(
+        helper.initialBlogs.map((blog) => ({ ...blog, user: userId })),
+      );
     });
 
     describe('GET /api/blogs', () => {
@@ -49,6 +76,7 @@ describe('Blog API Integration Tests', () => {
 
         await api
           .post('/api/blogs')
+          .set('Authorization', `Bearer ${token}`)
           .send(newBlog)
           .expect(201)
           .expect('Content-Type', /application\/json/);
@@ -69,6 +97,7 @@ describe('Blog API Integration Tests', () => {
         const response = await api
           .post('/api/blogs')
           .send(newBlog)
+          .set('Authorization', `Bearer ${token}`)
           .expect(201)
           .expect('Content-Type', /application\/json/);
 
@@ -89,6 +118,7 @@ describe('Blog API Integration Tests', () => {
 
         await api
           .post('/api/blogs')
+          .set('Authorization', `Bearer ${token}`)
           .send(newBlog)
           .expect(400)
           .expect('Content-Type', /application\/json/);
@@ -105,11 +135,31 @@ describe('Blog API Integration Tests', () => {
 
         await api
           .post('/api/blogs')
+          .set('Authorization', `Bearer ${token}`)
           .send(newBlog)
           .expect(400)
           .expect('Content-Type', /application\/json/);
 
         const blogsAtEnd = await helper.blogsInDb();
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+      });
+
+      test('fails with status code 401 if a token is not provided.', async () => {
+        const newBlog = {
+          title: 'First class tests',
+          author: 'Robert C. Martin',
+          url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
+          likes: 10,
+        };
+
+        await api
+          .post('/api/blogs')
+          .send(newBlog)
+          .expect(401)
+          .expect('Content-Type', /application\/json/);
+
+        const blogsAtEnd = await helper.blogsInDb();
+
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
       });
     });
@@ -119,16 +169,22 @@ describe('Blog API Integration Tests', () => {
         const blogsAtStart = await helper.blogsInDb();
         const blogToDelete = blogsAtStart[0];
 
-        await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+        await api
+          .delete(`/api/blogs/${blogToDelete.id}`)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(204);
 
         const blogsAtEnd = await helper.blogsInDb();
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1);
         assert(!blogsAtEnd.some((blog) => blog.id === blogToDelete.id));
       });
 
-      test('responds with status code 204 if id does not exist', async () => {
+      test('responds with status code 404 if id does not exist', async () => {
         const nonExistingId = new mongoose.Types.ObjectId();
-        await api.delete(`/api/blogs/${nonExistingId}`).expect(204);
+        await api
+          .delete(`/api/blogs/${nonExistingId}`)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(404);
 
         const blogsAtEnd = await helper.blogsInDb();
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
