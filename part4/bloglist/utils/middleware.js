@@ -12,6 +12,19 @@ const requestLogger = morgan(
   },
 );
 
+const getTokenFrom = (request) => {
+  const authorization = request.get('Authorization');
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '');
+  }
+  return null;
+};
+
+const tokenExtractor = (request, response, next) => {
+  request.token = getTokenFrom(request);
+  next();
+};
+
 const unknownEndpoint = (request, response) => {
   response.status(404).json({ error: 'Unknown endpoint' });
 };
@@ -38,5 +51,10 @@ const errorHandler = (error, request, response, _next) => {
   return response.status(500).json({ error: 'Internal server error' });
 };
 
-const middleware = { requestLogger, unknownEndpoint, errorHandler };
+const middleware = {
+  requestLogger,
+  unknownEndpoint,
+  errorHandler,
+  tokenExtractor,
+};
 module.exports = middleware;
