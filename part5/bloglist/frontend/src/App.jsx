@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Blog from './components/Blog';
 import blogService from './services/blogs';
 import loginService from './services/login';
+import Notification from './components/Notification';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -11,6 +12,7 @@ const App = () => {
   const [author, setAuthor] = useState('');
   const [url, setUrl] = useState('');
   const [user, setUser] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -25,6 +27,11 @@ const App = () => {
     }
   }, []);
 
+  const notify = (message, type) => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 5000);
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
@@ -35,14 +42,17 @@ const App = () => {
       setUser(user);
       setUsername('');
       setPassword('');
+      notify('Logged in successfully', 'success');
     } catch (error) {
       console.error(error.response?.data?.error);
+      notify(error.response?.data?.error ?? 'Something went wrong', 'error');
     }
   };
 
   const handleLogout = () => {
     window.localStorage.removeItem('loggedBloglistUser');
     setUser(null);
+    notify('Logged out', 'success');
   };
 
   const handleCreateBlog = async (event) => {
@@ -53,13 +63,19 @@ const App = () => {
       setTitle('');
       setAuthor('');
       setUrl('');
+      const label = createdBlog.author
+        ? `${createdBlog.title} by ${createdBlog.author}`
+        : createdBlog.title;
+      notify(`a new blog ${label} added`, 'success');
     } catch (error) {
       console.error(error.response?.data?.error);
+      notify(error.response?.data?.error ?? 'Something went wrong', 'error');
     }
   };
 
   return (
     <>
+      <Notification notification={notification} />
       {!user && (
         <>
           <h2>login to the application</h2>
