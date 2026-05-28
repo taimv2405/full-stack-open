@@ -21,4 +21,11 @@ const create = (newBlog) => {
   return request.then((response) => response.data);
 };
 
-export default { getAll, create, setToken };
+const update = (id, newBlog) => {
+  const request = axios.put(`${baseUrl}/${id}`, newBlog, {
+    headers: getAuthHeader(),
+  });
+  return request.then((response) => response.data);
+};
+
+export default { getAll, create, update, setToken };
