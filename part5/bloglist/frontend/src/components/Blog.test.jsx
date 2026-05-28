@@ -33,4 +33,11 @@ describe('when view button is clicked', () => {
     expect(screen.getByText(blog.url, { exact: false })).toBeInTheDocument();
     expect(screen.getByText(/likes.*7/i)).toBeInTheDocument();
   });
+
+  test('like button handler is called twice when clicked twice', async () => {
+    const likeBtn = screen.getByRole('button', { name: /like/i });
+    await user.click(likeBtn);
+    await user.click(likeBtn);
+    expect(handleLike.mock.calls).toHaveLength(2);
+  });
 });
