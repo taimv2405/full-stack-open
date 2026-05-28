@@ -28,4 +28,11 @@ const update = (id, newBlog) => {
   return request.then((response) => response.data);
 };
 
-export default { getAll, create, update, setToken };
+const remove = (id) => {
+  const request = axios.delete(`${baseUrl}/${id}`, {
+    headers: getAuthHeader(),
+  });
+  return request.then((response) => response.data);
+};
+
+export default { getAll, create, update, setToken, remove };

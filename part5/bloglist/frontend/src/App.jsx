@@ -82,6 +82,16 @@ const App = () => {
     }
   };
 
+  const handleRemove = async (id) => {
+    try {
+      await blogService.remove(id);
+      setBlogs(blogs.filter((blog) => blog.id !== id));
+    } catch (error) {
+      console.error(error.response?.data?.error);
+      notify(error.response?.data?.error ?? 'Something went wrong', 'error');
+    }
+  };
+
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
 
   return (
@@ -127,7 +137,13 @@ const App = () => {
           </Togglable>
 
           {sortedBlogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} onLike={handleLike} />
+            <Blog
+              key={blog.id}
+              blog={blog}
+              onLike={handleLike}
+              user={user}
+              onRemove={handleRemove}
+            />
           ))}
         </div>
       )}
