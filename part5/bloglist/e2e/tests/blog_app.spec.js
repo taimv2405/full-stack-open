@@ -57,5 +57,31 @@ describe('Blog app', () => {
         page.getByText('First class tests Robert C. Martin'),
       ).toBeVisible();
     });
+
+    describe('and several blogs exists', () => {
+      beforeEach(async ({ page }) => {
+        await createBlog(
+          page,
+          'First class tests',
+          'Robert C. Martin',
+          'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
+        );
+        await createBlog(
+          page,
+          'Go To Statement Considered Harmful',
+          'Edsger W. Dijkstra',
+          'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+        );
+      });
+
+      test('one of those can be liked', async ({ page }) => {
+        const blogSummary = page
+          .getByText('Go To Statement Considered Harmful Edsger W. Dijkstra')
+          .locator('..');
+        await blogSummary.getByRole('button', { name: 'view' }).click();
+        await page.getByRole('button', { name: 'like' }).click();
+        await expect(page.getByText('likes 1')).toBeVisible();
+      });
+    });
   });
 });
