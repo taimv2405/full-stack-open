@@ -11,6 +11,13 @@ describe('Blog app', () => {
         name: 'Anna',
       },
     });
+    await request.post('/api/users', {
+      data: {
+        username: 'bob',
+        password: '123456',
+        name: 'Bob',
+      },
+    });
     await page.goto('/');
   });
 
@@ -98,5 +105,26 @@ describe('Blog app', () => {
         ).not.toBeVisible();
       });
     });
+  });
+
+  test('only creator can see blog delete button', async ({ page }) => {
+    await loginWith(page, 'anna', '123456');
+    await createBlog(
+      page,
+      'Go To Statement Considered Harmful',
+      'Edsger W. Dijkstra',
+      'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+    );
+    await page.getByRole('button', { name: 'log out' }).click();
+
+    await loginWith(page, 'bob', '123456');
+    const blogSummary = page
+      .getByText('Go To Statement Considered Harmful Edsger W. Dijkstra')
+      .locator('..');
+    await blogSummary.getByRole('button', { name: 'view' }).click();
+
+    await expect(
+      page.getByRole('button', { name: 'remove' }),
+    ).not.toBeVisible();
   });
 });
