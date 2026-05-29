@@ -79,6 +79,12 @@ describe('Blog app', () => {
           'Edsger W. Dijkstra',
           'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
         );
+        await createBlog(
+          page,
+          'Canonical string reduction',
+          'Edsger W. Dijkstra',
+          'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+        );
       });
 
       test('one of those can be liked', async ({ page }) => {
@@ -103,6 +109,57 @@ describe('Blog app', () => {
             'Go To Statement Considered Harmful Edsger W. Dijkstra',
           ),
         ).not.toBeVisible();
+      });
+
+      test('the blogs are arranged in likes desc order', async ({ page }) => {
+        const blogSummary1 = page
+          .getByText('First class tests Robert C. Martin')
+          .locator('..');
+        await blogSummary1.getByRole('button', { name: 'view' }).click();
+        await page.getByRole('button', { name: 'like' }).click();
+        await page.getByText(`likes 1`).waitFor();
+        await page.getByRole('button', { name: 'hide' }).click();
+
+        const blogSummary2 = page
+          .getByText('Go To Statement Considered Harmful Edsger W. Dijkstra')
+          .locator('..');
+        await blogSummary2.getByRole('button', { name: 'view' }).click();
+        await page.getByRole('button', { name: 'like' }).click();
+        await page.getByText('likes 1').waitFor();
+        await page.getByRole('button', { name: 'like' }).click();
+        await page.getByText(`likes 2`).waitFor();
+        await page.getByRole('button', { name: 'hide' }).click();
+
+        const blogSummary3 = page
+          .getByText('Canonical string reduction Edsger W. Dijkstra')
+          .locator('..');
+        await blogSummary3.getByRole('button', { name: 'view' }).click();
+        await page.getByRole('button', { name: 'like' }).click();
+        await page.getByText('likes 1').waitFor();
+        await page.getByRole('button', { name: 'like' }).click();
+        await page.getByText(`likes 2`).waitFor();
+        await page.getByRole('button', { name: 'like' }).click();
+        await page.getByText(`likes 3`).waitFor();
+        await page.getByRole('button', { name: 'hide' }).click();
+
+        const blogSummaries = await page
+          .getByRole('button', { name: 'view' })
+          .locator('..')
+          .all();
+
+        await expect(
+          blogSummaries[0].getByText(
+            'Canonical string reduction Edsger W. Dijkstra',
+          ),
+        ).toBeVisible();
+        await expect(
+          blogSummaries[1].getByText(
+            'Go To Statement Considered Harmful Edsger W. Dijkstra',
+          ),
+        ).toBeVisible();
+        await expect(
+          blogSummaries[2].getByText('First class tests Robert C. Martin'),
+        ).toBeVisible();
       });
     });
   });
