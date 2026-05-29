@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test');
-const { loginWith } = require('./helper');
+const { loginWith, createBlog } = require('./helper');
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -34,6 +34,28 @@ describe('Blog app', () => {
       await expect(errorDiv).toHaveCSS('border-style', 'solid');
       await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)');
       await expect(page.getByText('Anna logged in')).not.toBeVisible();
+    });
+  });
+
+  describe('When logged in', () => {
+    beforeEach(async ({ page }) => {
+      await loginWith(page, 'anna', '123456');
+    });
+
+    test('a new blog can be created', async ({ page }) => {
+      await createBlog(
+        page,
+        'First class tests',
+        'Robert C. Martin',
+        'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
+      );
+
+      await expect(
+        page.getByText('a new blog First class tests by Robert C. Martin'),
+      ).toBeVisible();
+      await expect(
+        page.getByText('First class tests Robert C. Martin'),
+      ).toBeVisible();
     });
   });
 });
