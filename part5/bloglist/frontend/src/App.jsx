@@ -97,6 +97,7 @@ const App = () => {
   return (
     <>
       <Notification notification={notification} />
+      <h1>blogs</h1>
       {!user && (
         <>
           <h2>login to the application</h2>
@@ -128,7 +129,6 @@ const App = () => {
 
       {user && (
         <div>
-          <h2>blogs</h2>
           <p>{user.name} logged in</p>
           <button onClick={handleLogout}>log out</button>
 
