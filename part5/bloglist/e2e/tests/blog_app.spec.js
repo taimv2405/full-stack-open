@@ -1,23 +1,29 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test');
-const { loginWith, createBlog } = require('./helper');
+const { loginWith, createBlog, getBlogRow, likeNTimes } = require('./helper');
+
+const ANNA = { username: 'anna', password: '123456', name: 'Anna' };
+const BOB = { username: 'bob', password: '123456', name: 'Bob' };
+
+const FIRST_CLASS = {
+  title: 'First class tests',
+  author: 'Robert C. Martin',
+  url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
+};
+const GOTO = {
+  title: 'Go To Statement Considered Harmful',
+  author: 'Edsger W. Dijkstra',
+  url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+};
+const CANONICAL = {
+  title: 'Canonical string reduction',
+  author: 'Edsger W. Dijkstra',
+  url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+};
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await request.post('/api/testing/reset');
-    await request.post('/api/users', {
-      data: {
-        username: 'anna',
-        password: '123456',
-        name: 'Anna',
-      },
-    });
-    await request.post('/api/users', {
-      data: {
-        username: 'bob',
-        password: '123456',
-        name: 'Bob',
-      },
-    });
+    await request.post('/api/users', { data: ANNA });
     await page.goto('/');
   });
 
@@ -29,12 +35,12 @@ describe('Blog app', () => {
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
-      await loginWith(page, 'anna', '123456');
+      await loginWith(page, ANNA.username, ANNA.password);
       await expect(page.getByText('Anna logged in')).toBeVisible();
     });
 
     test('fails with wrong credentials', async ({ page }) => {
-      await loginWith(page, 'anna', 'wrong');
+      await loginWith(page, ANNA.username, 'wrong');
 
       const errorDiv = page.locator('.error');
       await expect(errorDiv).toContainText('invalid username or password');
@@ -46,142 +52,68 @@ describe('Blog app', () => {
 
   describe('When logged in', () => {
     beforeEach(async ({ page }) => {
-      await loginWith(page, 'anna', '123456');
+      await loginWith(page, ANNA.username, ANNA.password);
     });
 
     test('a new blog can be created', async ({ page }) => {
-      await createBlog(
-        page,
-        'First class tests',
-        'Robert C. Martin',
-        'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
-      );
+      await createBlog(page, FIRST_CLASS);
 
       await expect(
-        page.getByText('a new blog First class tests by Robert C. Martin'),
+        page.getByText(`a new blog ${FIRST_CLASS.title} by ${FIRST_CLASS.author}`),
       ).toBeVisible();
       await expect(
-        page.getByText('First class tests Robert C. Martin'),
+        page.getByText(`${FIRST_CLASS.title} ${FIRST_CLASS.author}`),
       ).toBeVisible();
     });
 
-    describe('and several blogs exists', () => {
+    test('only creator can see blog delete button', async ({ page, request }) => {
+      await request.post('/api/users', { data: BOB });
+      await createBlog(page, GOTO);
+      await page.getByRole('button', { name: 'log out' }).click();
+
+      await loginWith(page, BOB.username, BOB.password);
+      await getBlogRow(page, GOTO).getByRole('button', { name: 'view' }).click();
+
+      await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible();
+    });
+
+    describe('and several blogs exist', () => {
       beforeEach(async ({ page }) => {
-        await createBlog(
-          page,
-          'First class tests',
-          'Robert C. Martin',
-          'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html',
-        );
-        await createBlog(
-          page,
-          'Go To Statement Considered Harmful',
-          'Edsger W. Dijkstra',
-          'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
-        );
-        await createBlog(
-          page,
-          'Canonical string reduction',
-          'Edsger W. Dijkstra',
-          'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
-        );
+        await createBlog(page, FIRST_CLASS);
+        await createBlog(page, GOTO);
+        await createBlog(page, CANONICAL);
       });
 
       test('one of those can be liked', async ({ page }) => {
-        const blogSummary = page
-          .getByText('Go To Statement Considered Harmful Edsger W. Dijkstra')
-          .locator('..');
-        await blogSummary.getByRole('button', { name: 'view' }).click();
+        await getBlogRow(page, GOTO).getByRole('button', { name: 'view' }).click();
         await page.getByRole('button', { name: 'like' }).click();
         await expect(page.getByText('likes 1')).toBeVisible();
       });
 
-      test('the user added the blog can delete it', async ({ page }) => {
-        const blogSummary = page
-          .getByText('Go To Statement Considered Harmful Edsger W. Dijkstra')
-          .locator('..');
-        await blogSummary.getByRole('button', { name: 'view' }).click();
+      test('blog creator can delete the blog', async ({ page }) => {
+        await getBlogRow(page, GOTO).getByRole('button', { name: 'view' }).click();
         page.on('dialog', (dialog) => dialog.accept());
         await page.getByRole('button', { name: 'remove' }).click();
 
         await expect(
-          page.getByText(
-            'Go To Statement Considered Harmful Edsger W. Dijkstra',
-          ),
+          page.getByText(`${GOTO.title} ${GOTO.author}`),
         ).not.toBeVisible();
       });
 
-      test('the blogs are arranged in likes desc order', async ({ page }) => {
-        const blogSummary1 = page
-          .getByText('First class tests Robert C. Martin')
-          .locator('..');
-        await blogSummary1.getByRole('button', { name: 'view' }).click();
-        await page.getByRole('button', { name: 'like' }).click();
-        await page.getByText(`likes 1`).waitFor();
-        await page.getByRole('button', { name: 'hide' }).click();
+      test('blogs are arranged in likes desc order', async ({ page }) => {
+        await likeNTimes(page, getBlogRow(page, FIRST_CLASS), 1);
+        await likeNTimes(page, getBlogRow(page, GOTO), 2);
+        await likeNTimes(page, getBlogRow(page, CANONICAL), 3);
 
-        const blogSummary2 = page
-          .getByText('Go To Statement Considered Harmful Edsger W. Dijkstra')
-          .locator('..');
-        await blogSummary2.getByRole('button', { name: 'view' }).click();
-        await page.getByRole('button', { name: 'like' }).click();
-        await page.getByText('likes 1').waitFor();
-        await page.getByRole('button', { name: 'like' }).click();
-        await page.getByText(`likes 2`).waitFor();
-        await page.getByRole('button', { name: 'hide' }).click();
-
-        const blogSummary3 = page
-          .getByText('Canonical string reduction Edsger W. Dijkstra')
-          .locator('..');
-        await blogSummary3.getByRole('button', { name: 'view' }).click();
-        await page.getByRole('button', { name: 'like' }).click();
-        await page.getByText('likes 1').waitFor();
-        await page.getByRole('button', { name: 'like' }).click();
-        await page.getByText(`likes 2`).waitFor();
-        await page.getByRole('button', { name: 'like' }).click();
-        await page.getByText(`likes 3`).waitFor();
-        await page.getByRole('button', { name: 'hide' }).click();
-
-        const blogSummaries = await page
+        const rows = await page
           .getByRole('button', { name: 'view' })
           .locator('..')
           .all();
 
-        await expect(
-          blogSummaries[0].getByText(
-            'Canonical string reduction Edsger W. Dijkstra',
-          ),
-        ).toBeVisible();
-        await expect(
-          blogSummaries[1].getByText(
-            'Go To Statement Considered Harmful Edsger W. Dijkstra',
-          ),
-        ).toBeVisible();
-        await expect(
-          blogSummaries[2].getByText('First class tests Robert C. Martin'),
-        ).toBeVisible();
+        await expect(rows[0].getByText(`${CANONICAL.title} ${CANONICAL.author}`)).toBeVisible();
+        await expect(rows[1].getByText(`${GOTO.title} ${GOTO.author}`)).toBeVisible();
+        await expect(rows[2].getByText(`${FIRST_CLASS.title} ${FIRST_CLASS.author}`)).toBeVisible();
       });
     });
-  });
-
-  test('only creator can see blog delete button', async ({ page }) => {
-    await loginWith(page, 'anna', '123456');
-    await createBlog(
-      page,
-      'Go To Statement Considered Harmful',
-      'Edsger W. Dijkstra',
-      'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
-    );
-    await page.getByRole('button', { name: 'log out' }).click();
-
-    await loginWith(page, 'bob', '123456');
-    const blogSummary = page
-      .getByText('Go To Statement Considered Harmful Edsger W. Dijkstra')
-      .locator('..');
-    await blogSummary.getByRole('button', { name: 'view' }).click();
-
-    await expect(
-      page.getByRole('button', { name: 'remove' }),
-    ).not.toBeVisible();
   });
 });
