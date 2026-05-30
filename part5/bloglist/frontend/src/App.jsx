@@ -5,11 +5,10 @@ import loginService from './services/login';
 import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import BlogForm from './components/BlogForm';
+import Login from './components/Login';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(null);
   const blogFormRef = useRef();
@@ -32,20 +31,18 @@ const App = () => {
     setTimeout(() => setNotification(null), 5000);
   };
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
+  const handleLogin = async (username, password) => {
     try {
       const user = await loginService.login({ username, password });
-
       window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user));
       blogService.setToken(user.token);
       setUser(user);
-      setUsername('');
-      setPassword('');
       notify('Logged in successfully', 'success');
+      return true;
     } catch (error) {
       console.error(error.response?.data?.error);
       notify(error.response?.data?.error ?? 'Something went wrong', 'error');
+      return false;
     }
   };
 
@@ -101,29 +98,7 @@ const App = () => {
       {!user && (
         <>
           <h2>login to the application</h2>
-          <form onSubmit={handleLogin}>
-            <div>
-              <label>
-                username
-                <input
-                  type="text"
-                  value={username}
-                  onChange={({ target }) => setUsername(target.value)}
-                />
-              </label>
-            </div>
-            <div>
-              <label>
-                password
-                <input
-                  type="password"
-                  value={password}
-                  onChange={({ target }) => setPassword(target.value)}
-                />
-              </label>
-            </div>
-            <button type="submit">login</button>
-          </form>
+          <Login onLogin={handleLogin} />
         </>
       )}
 
