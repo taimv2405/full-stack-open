@@ -1,16 +1,21 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const BlogForm = ({ onCreate }) => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [url, setUrl] = useState('');
 
-  const handleCreateBlog = (event) => {
+  const handleCreateBlog = async (event) => {
     event.preventDefault();
-    onCreate({ title, author, url });
-    setTitle('');
-    setAuthor('');
-    setUrl('');
+    const success = await onCreate({ title, author, url });
+    if (success) {
+      setTitle('');
+      setAuthor('');
+      setUrl('');
+      navigate('/');
+    }
   };
 
   return (
