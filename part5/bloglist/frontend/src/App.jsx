@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Blog from './components/Blog';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import Notification from './components/Notification';
@@ -9,6 +10,7 @@ import Login from './components/Login';
 import Blogs from './components/Blogs';
 
 const App = () => {
+  const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(null);
@@ -51,9 +53,10 @@ const App = () => {
     window.localStorage.removeItem('loggedBloglistUser');
     setUser(null);
     notify('Logged out', 'success');
+    navigate('/');
   };
 
-  const handleCreateBlog = async (blogInfo) => {
+  const _handleCreateBlog = async (blogInfo) => {
     try {
       const createdBlog = await blogService.create(blogInfo);
       setBlogs([...blogs, createdBlog]);
@@ -90,33 +93,46 @@ const App = () => {
     }
   };
 
+  const padding = {
+    padding: 5,
+  };
+
   return (
     <>
+      <div>
+        <Link style={padding} to="/">
+          blogs
+        </Link>
+        {!user && (
+          <Link style={padding} to="/login">
+            login
+          </Link>
+        )}
+        {user && <button onClick={handleLogout}>log out</button>}
+      </div>
+
       <Notification notification={notification} />
-      <h1>blogs</h1>
-      {!user && (
-        <>
-          <h2>login to the application</h2>
-          <Login onLogin={handleLogin} />
-        </>
-      )}
 
-      {user && (
-        <div>
-          <button onClick={handleLogout}>log out</button>
+      {/* <div>
+        <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+          <BlogForm onCreate={handleCreateBlog} />
+        </Togglable>
+      </div> */}
 
-          <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-            <BlogForm onCreate={handleCreateBlog} />
-          </Togglable>
-
-          <Blogs
-            blogs={blogs}
-            onLike={handleLike}
-            onRemove={handleRemove}
-            user={user}
-          />
-        </div>
-      )}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Blogs
+              blogs={blogs}
+              onLike={handleLike}
+              onRemove={handleRemove}
+              user={user}
+            />
+          }
+        />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+      </Routes>
     </>
   );
 };
