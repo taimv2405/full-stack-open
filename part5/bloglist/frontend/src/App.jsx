@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Blog from './components/Blog';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import Notification from './components/Notification';
@@ -87,11 +87,16 @@ const App = () => {
     try {
       await blogService.remove(id);
       setBlogs(blogs.filter((blog) => blog.id !== id));
+      return true;
     } catch (error) {
       console.error(error.response?.data?.error);
       notify(error.response?.data?.error ?? 'Something went wrong', 'error');
+      return false;
     }
   };
+
+  const match = useMatch('/blogs/:id');
+  const blog = match ? blogs.find((blog) => blog.id === match.params.id) : null;
 
   const padding = {
     padding: 5,
@@ -109,6 +114,7 @@ const App = () => {
           </Link>
         )}
         {user && <button onClick={handleLogout}>log out</button>}
+        {user && <p>{user.name} logged in</p>}
       </div>
 
       <Notification notification={notification} />
@@ -120,14 +126,15 @@ const App = () => {
       </div> */}
 
       <Routes>
+        <Route path="/" element={<Blogs blogs={blogs} />} />
         <Route
-          path="/"
+          path="/blogs/:id"
           element={
-            <Blogs
-              blogs={blogs}
+            <Blog
+              blog={blog}
               onLike={handleLike}
-              onRemove={handleRemove}
               user={user}
+              onRemove={handleRemove}
             />
           }
         />
