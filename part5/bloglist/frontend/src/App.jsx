@@ -6,6 +6,7 @@ import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import BlogForm from './components/BlogForm';
 import Login from './components/Login';
+import Blogs from './components/Blogs';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -89,8 +90,6 @@ const App = () => {
     }
   };
 
-  const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
-
   return (
     <>
       <Notification notification={notification} />
@@ -104,22 +103,18 @@ const App = () => {
 
       {user && (
         <div>
-          <p>{user.name} logged in</p>
           <button onClick={handleLogout}>log out</button>
 
           <Togglable buttonLabel="create new blog" ref={blogFormRef}>
             <BlogForm onCreate={handleCreateBlog} />
           </Togglable>
 
-          {sortedBlogs.map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              onLike={handleLike}
-              user={user}
-              onRemove={handleRemove}
-            />
-          ))}
+          <Blogs
+            blogs={blogs}
+            onLike={handleLike}
+            onRemove={handleRemove}
+            user={user}
+          />
         </div>
       )}
     </>
