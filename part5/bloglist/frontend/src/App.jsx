@@ -1,20 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
-import Blog from './components/Blog';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import Notification from './components/Notification';
-import Togglable from './components/Togglable';
 import BlogForm from './components/BlogForm';
 import Login from './components/Login';
 import Blogs from './components/Blogs';
+import Blog from './components/Blog';
 
 const App = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const [notification, setNotification] = useState(null);
-  const blogFormRef = useRef();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -57,7 +55,7 @@ const App = () => {
     navigate('/');
   };
 
-  const _handleCreateBlog = async (blogInfo) => {
+  const handleCreateBlog = async (blogInfo) => {
     try {
       const createdBlog = await blogService.create(blogInfo);
       setBlogs([...blogs, createdBlog]);
@@ -66,11 +64,11 @@ const App = () => {
         ? `${createdBlog.title} by ${createdBlog.author}`
         : createdBlog.title;
       notify(`a new blog ${label} added`, 'success');
-
-      blogFormRef.current.toggleVisibility();
+      return true;
     } catch (error) {
       console.error(error.response?.data?.error);
       notify(error.response?.data?.error ?? 'Something went wrong', 'error');
+      return false;
     }
   };
 
@@ -114,17 +112,20 @@ const App = () => {
             login
           </Link>
         )}
-        {user && <button onClick={handleLogout}>log out</button>}
-        {user && <p>{user.name} logged in</p>}
+        {user && (
+          <>
+            <Link style={padding} to="/blogs/create">
+              new blog
+            </Link>
+
+            <button onClick={handleLogout}>log out</button>
+
+            <p>{user.name} logged in</p>
+          </>
+        )}
       </div>
 
       <Notification notification={notification} />
-
-      {/* <div>
-        <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-          <BlogForm onCreate={handleCreateBlog} />
-        </Togglable>
-      </div> */}
 
       <Routes>
         <Route path="/" element={<Blogs blogs={blogs} />} />
@@ -138,6 +139,10 @@ const App = () => {
               onRemove={handleRemove}
             />
           }
+        />
+        <Route
+          path="/blogs/create"
+          element={<BlogForm onCreate={handleCreateBlog} />}
         />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
       </Routes>
