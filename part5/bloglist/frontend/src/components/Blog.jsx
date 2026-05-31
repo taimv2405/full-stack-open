@@ -1,17 +1,11 @@
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Blog = ({ blog, onLike, user, onRemove }) => {
-  const [detail, setDetail] = useState(false);
+  const navigate = useNavigate();
 
-  const blogStyle = {
-    border: '1px solid black',
-    padding: '8px 16px',
-    marginBottom: 5,
-  };
-
-  const toggleShowDetail = () => {
-    setDetail(!detail);
-  };
+  if (!blog) {
+    return null;
+  }
 
   const handleLike = () => {
     const updatedBlog = {
@@ -21,36 +15,30 @@ const Blog = ({ blog, onLike, user, onRemove }) => {
     onLike(blog.id, updatedBlog);
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     const message = blog.author
       ? `${blog.title} by ${blog.author}`
       : blog.title;
     if (window.confirm(`Remove blog ${message}`)) {
-      onRemove(blog.id);
+      const success = await onRemove(blog.id);
+      if (success) navigate('/');
     }
   };
 
   return (
-    <div style={blogStyle}>
+    <>
+      <h1>
+        {blog.author}: {blog.title}
+      </h1>
+      <a href={blog.url}>{blog.url}</a>
       <div>
-        <span>
-          {blog.title} {blog.author}
-        </span>
-        <button onClick={toggleShowDetail}>{detail ? 'hide' : 'view'}</button>
+        likes {blog.likes} <button onClick={handleLike}>like</button>
       </div>
-      {detail && (
-        <div>
-          <div>{blog.url}</div>
-          <div>
-            likes {blog.likes} <button onClick={handleLike}>like</button>
-          </div>
-          <div>{blog.user?.name}</div>
-          {user?.username && user?.username === blog.user?.username && (
-            <button onClick={handleRemove}>remove</button>
-          )}
-        </div>
+      {blog.user && <div>Added by {blog.user.name}</div>}
+      {user && user.username === blog.user?.username && (
+        <button onClick={handleRemove}>remove</button>
       )}
-    </div>
+    </>
   );
 };
 
