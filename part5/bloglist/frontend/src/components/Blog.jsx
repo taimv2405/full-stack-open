@@ -1,8 +1,4 @@
-import { useNavigate } from 'react-router-dom';
-
 const Blog = ({ blog, onLike, user, onRemove }) => {
-  const navigate = useNavigate();
-
   if (!blog) {
     return null;
   }
@@ -15,13 +11,12 @@ const Blog = ({ blog, onLike, user, onRemove }) => {
     onLike(blog.id, updatedBlog);
   };
 
-  const handleRemove = async () => {
+  const handleRemove = () => {
     const message = blog.author
       ? `${blog.title} by ${blog.author}`
       : blog.title;
     if (window.confirm(`Remove blog ${message}`)) {
-      const success = await onRemove(blog.id);
-      if (success) navigate('/');
+      onRemove(blog.id);
     }
   };
 

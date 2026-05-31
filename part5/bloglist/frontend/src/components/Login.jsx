@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const Login = ({ onLogin }) => {
-  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -12,7 +10,6 @@ const Login = ({ onLogin }) => {
     if (success) {
       setUsername('');
       setPassword('');
-      navigate('/');
     }
   };
 

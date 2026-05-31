@@ -39,6 +39,7 @@ const App = () => {
       blogService.setToken(user.token);
       setUser(user);
       notify('Logged in successfully', 'success');
+      navigate('/');
       return true;
     } catch (error) {
       console.error(error.response?.data?.error);
@@ -64,6 +65,7 @@ const App = () => {
         ? `${createdBlog.title} by ${createdBlog.author}`
         : createdBlog.title;
       notify(`a new blog ${label} added`, 'success');
+      navigate('/');
       return true;
     } catch (error) {
       console.error(error.response?.data?.error);
@@ -86,6 +88,7 @@ const App = () => {
     try {
       await blogService.remove(id);
       setBlogs(blogs.filter((blog) => blog.id !== id));
+      navigate('/');
       return true;
     } catch (error) {
       console.error(error.response?.data?.error);
