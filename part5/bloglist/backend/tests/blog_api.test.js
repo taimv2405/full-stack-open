@@ -199,6 +199,7 @@ describe('Blog API Integration Tests', () => {
 
         await api
           .put(`/api/blogs/${blogToUpdate.id}`)
+          .set('Authorization', `Bearer ${token}`)
           .send(blogToUpdate)
           .expect(200);
 
@@ -214,6 +215,7 @@ describe('Blog API Integration Tests', () => {
         const nonExistingId = new mongoose.Types.ObjectId();
         await api
           .put(`/api/blogs/${nonExistingId}`)
+          .set('Authorization', `Bearer ${token}`)
           .send({ likes: 100 })
           .expect(404);
       });
