@@ -1,3 +1,5 @@
+import { Button, Box, Card } from '@mui/material';
+
 const Blog = ({ blog, onLike, user, onRemove }) => {
   if (!blog) {
     return null;
@@ -21,20 +23,38 @@ const Blog = ({ blog, onLike, user, onRemove }) => {
   };
 
   return (
-    <>
-      <h1>
-        {blog.author}: {blog.title}
-      </h1>
+    <Card
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        padding: 2,
+        marginTop: 2,
+      }}
+    >
+      <h1 style={{ margin: 0 }}>{blog.title}</h1>
+      {blog.author && <p style={{ margin: 0 }}>by {blog.author}</p>}
       <a href={blog.url}>{blog.url}</a>
-      <div>
-        <span>likes {blog.likes}</span>{' '}
-        {user && <button onClick={handleLike}>like</button>}
-      </div>
       {blog.user && <div>Added by {blog.user.name}</div>}
-      {user && user.username === blog.user?.username && (
-        <button onClick={handleRemove}>remove</button>
-      )}
-    </>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <span>{blog.likes} likes</span>
+        {user && (
+          <Button onClick={handleLike} variant="outlined" size="small">
+            like
+          </Button>
+        )}
+        {user && user.username === blog.user?.username && (
+          <Button
+            onClick={handleRemove}
+            color="error"
+            variant="outlined"
+            size="small"
+          >
+            remove
+          </Button>
+        )}
+      </Box>
+    </Card>
   );
 };
 
