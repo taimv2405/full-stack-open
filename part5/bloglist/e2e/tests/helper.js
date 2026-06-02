@@ -24,7 +24,7 @@ const goToBlog = async (page, { title, author }) =>
 const likeNTimes = async (page, n) => {
   for (let i = 1; i <= n; i++) {
     await page.getByRole('button', { name: 'like' }).click();
-    await page.getByText(`likes ${i}`).waitFor();
+    await page.getByText(`${i} likes`).waitFor();
   }
 };
 

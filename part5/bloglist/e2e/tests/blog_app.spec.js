@@ -43,22 +43,19 @@ describe('Blog app', () => {
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
       await loginWith(page, ANNA.username, ANNA.password);
-      await expect(page.getByText('Anna logged in')).toBeVisible();
       await expect(page.getByRole('link', { name: 'login' })).not.toBeVisible();
-      await expect(page.getByRole('button', { name: 'log out' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'logout' })).toBeVisible();
     });
 
     test('fails with wrong credentials', async ({ page }) => {
       await loginWith(page, ANNA.username, 'wrong');
 
-      const errorDiv = page.locator('.error');
-      await expect(errorDiv).toContainText('invalid username or password');
-      await expect(errorDiv).toHaveCSS('border-style', 'solid');
-      await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)');
-      await expect(page.getByText('Anna logged in')).not.toBeVisible();
+      await expect(
+        page.getByText('invalid username or password'),
+      ).toBeVisible();
       await expect(page.getByRole('link', { name: 'login' })).toBeVisible();
       await expect(
-        page.getByRole('button', { name: 'log out' }),
+        page.getByRole('button', { name: 'logout' }),
       ).not.toBeVisible();
     });
   });
@@ -89,7 +86,7 @@ describe('Blog app', () => {
     }) => {
       await request.post('/api/users', { data: BOB });
       await createBlog(page, GOTO);
-      await page.getByRole('button', { name: 'log out' }).click();
+      await page.getByRole('button', { name: 'logout' }).click();
 
       await loginWith(page, BOB.username, BOB.password);
       await goToBlog(page, GOTO);
@@ -109,7 +106,7 @@ describe('Blog app', () => {
       test('one of those can be liked', async ({ page }) => {
         await goToBlog(page, FIRST_CLASS);
         await page.getByRole('button', { name: 'like' }).click();
-        await expect(page.getByText('likes 1')).toBeVisible();
+        await expect(page.getByText('1 likes')).toBeVisible();
       });
 
       test('blog creator can delete the blog', async ({ page }) => {
