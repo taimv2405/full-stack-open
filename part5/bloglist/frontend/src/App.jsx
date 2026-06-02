@@ -7,7 +7,7 @@ import BlogForm from './components/BlogForm';
 import Login from './components/Login';
 import Blogs from './components/Blogs';
 import Blog from './components/Blog';
-import { Container } from '@mui/material';
+import { Container, AppBar, Toolbar, Button, Typography } from '@mui/material';
 
 const App = () => {
   const navigate = useNavigate();
@@ -101,33 +101,38 @@ const App = () => {
   const match = useMatch('/blogs/:id');
   const blog = match ? blogs.find((blog) => blog.id === match.params.id) : null;
 
-  const padding = {
-    padding: 5,
+  const navBtn = {
+    '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.3)' },
+    color: 'white',
   };
 
   return (
     <Container>
-      <div>
-        <Link style={padding} to="/">
-          blogs
-        </Link>
-        {!user && (
-          <Link style={padding} to="/login">
-            login
-          </Link>
-        )}
-        {user && (
-          <>
-            <Link style={padding} to="/blogs/create">
-              new blog
-            </Link>
-
-            <button onClick={handleLogout}>log out</button>
-
-            <p>{user.name} logged in</p>
-          </>
-        )}
-      </div>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography component="span" sx={{ flex: 1 }}>
+            Blog App
+          </Typography>
+          <Button component={Link} to="/" sx={navBtn}>
+            blogs
+          </Button>
+          {!user && (
+            <Button component={Link} to="/login" sx={navBtn}>
+              login
+            </Button>
+          )}
+          {user && (
+            <>
+              <Button component={Link} to="/blogs/create" sx={navBtn}>
+                new blog
+              </Button>
+              <Button onClick={handleLogout} sx={navBtn}>
+                logout
+              </Button>
+            </>
+          )}
+        </Toolbar>
+      </AppBar>
 
       <Notification notification={notification} />
 
