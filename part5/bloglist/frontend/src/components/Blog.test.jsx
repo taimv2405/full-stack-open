@@ -18,19 +18,28 @@ describe('Blog', () => {
     render(<Blog blog={ANNA_BLOG} />);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Michael Chan: React patterns',
+      'React patterns',
     );
-    expect(screen.getByRole('link', { name: ANNA_BLOG.url })).toBeInTheDocument();
-    expect(screen.getByText('likes 7')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'like' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'remove' })).not.toBeInTheDocument();
+    expect(screen.getByText('by Michael Chan')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: ANNA_BLOG.url }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('7 likes')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'like' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'remove' }),
+    ).not.toBeInTheDocument();
   });
 
   test('non-creator sees only like button', () => {
     render(<Blog blog={ANNA_BLOG} user={BOB} />);
 
     expect(screen.getByRole('button', { name: 'like' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'remove' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'remove' }),
+    ).not.toBeInTheDocument();
   });
 
   test('creator sees like and remove buttons', () => {
