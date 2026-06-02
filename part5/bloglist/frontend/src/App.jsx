@@ -7,6 +7,7 @@ import BlogForm from './components/BlogForm';
 import Login from './components/Login';
 import Blogs from './components/Blogs';
 import Blog from './components/Blog';
+import { Container } from '@mui/material';
 
 const App = () => {
   const navigate = useNavigate();
@@ -105,7 +106,7 @@ const App = () => {
   };
 
   return (
-    <>
+    <Container>
       <div>
         <Link style={padding} to="/">
           blogs
@@ -149,7 +150,7 @@ const App = () => {
         />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
       </Routes>
-    </>
+    </Container>
   );
 };
 
