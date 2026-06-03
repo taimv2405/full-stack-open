@@ -36,6 +36,19 @@ const useAnecdoteStore = create((set, get) => ({
         console.error(error.message);
       }
     },
+    remove: async (id) => {
+      const targetAnecdote = get().anecdotes.find(
+        (anecdote) => anecdote.id === id,
+      );
+      if (targetAnecdote.votes > 0)
+        throw new Error('Only zero votes anecdotes can be removed');
+
+      await anecdoteService.remove(id);
+
+      set((state) => ({
+        anecdotes: state.anecdotes.filter((anecdote) => anecdote.id !== id),
+      }));
+    },
   },
 }));
 
