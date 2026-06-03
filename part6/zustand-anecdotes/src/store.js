@@ -48,3 +48,15 @@ export const useAnecdotes = () => {
 };
 export const useAnecdoteActions = () =>
   useAnecdoteStore((state) => state.actions);
+
+const useNotificationStore = create((set) => ({
+  message: null,
+  actions: {
+    setMessage: (newMessage) => set(() => ({ message: newMessage })),
+  },
+}));
+
+export const useMessage = () => useNotificationStore((state) => state.message);
+
+export const useNotificationActions = () =>
+  useNotificationStore((state) => state.actions);
