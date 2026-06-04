@@ -33,3 +33,34 @@ describe('useAnecdoteActions', () => {
     expect(result.current.anecdotes).toEqual(mockAnecdotes);
   });
 });
+
+describe('useAnecdotes', () => {
+  it('returns a properly filtered list of anecdotes.', async () => {
+    const anecdotes = [
+      {
+        content: 'If it hurts, do it more often',
+        id: '47145',
+        votes: 0,
+      },
+      {
+        content: 'Adding manpower to a late software project makes it later!',
+        id: '21149',
+        votes: 0,
+      },
+      {
+        content: 'Premature optimization is the root of all evil.',
+        id: '25170',
+        votes: 0,
+      },
+    ];
+
+    useAnecdoteStore.setState({ anecdotes, filter: 'it' });
+
+    const { result } = renderHook(() => useAnecdotes());
+
+    expect(result.current).toHaveLength(2);
+    expect(result.current).toContainEqual(anecdotes[0]);
+    expect(result.current).toContainEqual(anecdotes[1]);
+    expect(result.current).not.toContainEqual(anecdotes[2]);
+  });
+});
