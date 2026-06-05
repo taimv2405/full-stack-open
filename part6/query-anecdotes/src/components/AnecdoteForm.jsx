@@ -1,11 +1,13 @@
 import { useAnecdotes } from '../hooks/useAnecdotes';
-import useNotification from '../hooks/useNotification';
+import useNotify from '../hooks/useNotify';
 
 const AnecdoteForm = () => {
-  const { notify } = useNotification();
+  const { notify } = useNotify();
   const { createAnecdote } = useAnecdotes({
-    onCreateSuccess: (anecdote) => notify(`anecdote '${anecdote.content}' created`),
-    onCreateError: () => notify('too short anecdote, must have length 5 or more'),
+    onCreateSuccess: (anecdote) =>
+      notify(`anecdote '${anecdote.content}' created`),
+    onCreateError: () =>
+      notify('too short anecdote, must have length 5 or more'),
   });
 
   const onCreate = (event) => {
