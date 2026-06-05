@@ -4,8 +4,10 @@ import { useAnecdotes } from './hooks/useAnecdotes';
 import useNotification from './hooks/useNotification';
 
 const App = () => {
-  const { anecdotes, isPending, isError, voteAnecdote } = useAnecdotes();
   const { notify } = useNotification();
+  const { anecdotes, isPending, isError, voteAnecdote } = useAnecdotes({
+    onVoteSuccess: (anecdote) => notify(`anecdote '${anecdote.content}' voted`),
+  });
 
   if (isPending) {
     return <div>fetching anecdotes...</div>;
@@ -27,14 +29,7 @@ const App = () => {
           <div>{anecdote.content}</div>
           <div>
             has {anecdote.votes}
-            <button
-              onClick={() => {
-                voteAnecdote(anecdote);
-                notify(`anecdote '${anecdote.content}' voted`);
-              }}
-            >
-              vote
-            </button>
+            <button onClick={() => voteAnecdote(anecdote)}>vote</button>
           </div>
         </div>
       ))}
