@@ -1,4 +1,7 @@
-const AnecdoteList = ({ anecdotes, removeAnecdote }) => {
+import { useAnecdotes } from '../hooks';
+
+const AnecdoteList = () => {
+  const { anecdotes, removeAnecdote } = useAnecdotes();
   return (
     <div>
       <h2>Anecdotes</h2>
