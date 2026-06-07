@@ -16,12 +16,13 @@ import {
   Typography,
   Alert,
 } from '@mui/material';
+import { useNotification } from './contexts/NotificationContext';
 
 const App = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [notification, setNotification] = useState(null);
+  const { notify } = useNotification();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -35,11 +36,6 @@ const App = () => {
       setUser(user);
     }
   }, []);
-
-  const notify = (message, type) => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 5000);
-  };
 
   const handleLogin = async (username, password) => {
     try {
@@ -159,7 +155,7 @@ const App = () => {
           </div>
         )}
       >
-        <Notification notification={notification} />
+        <Notification />
 
         <Routes>
           <Route path="/" element={<Blogs blogs={blogs} />} />
