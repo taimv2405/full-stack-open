@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { ErrorBoundary, getErrorMessage } from 'react-error-boundary';
 import loginService from './services/login';
@@ -16,28 +15,17 @@ import {
   Alert,
 } from '@mui/material';
 import { useNotification } from './contexts/NotificationContext';
-import { setToken } from './requests';
+import { useUser } from './contexts/UserContext';
 
 const App = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const { notify, notifyError } = useNotification();
-
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser');
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setToken(user.token);
-      setUser(user);
-    }
-  }, []);
+  const { user, login, logout } = useUser();
 
   const handleLogin = async (username, password) => {
     try {
-      const user = await loginService.login({ username, password });
-      window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user));
-      setToken(user.token);
-      setUser(user);
+      const loggedUser = await loginService.login({ username, password });
+      login(loggedUser);
       notify('Logged in successfully', 'success');
       navigate('/');
       return true;
@@ -48,9 +36,7 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    window.localStorage.removeItem('loggedBloglistUser');
-    setUser(null);
-    setToken(null);
+    logout();
     notify('Logged out', 'success');
     navigate('/');
   };
@@ -109,7 +95,7 @@ const App = () => {
 
         <Routes>
           <Route path="/" element={<Blogs />} />
-          <Route path="/blogs/:id" element={<Blog user={user} />} />
+          <Route path="/blogs/:id" element={<Blog />} />
           <Route path="/blogs/create" element={<BlogForm />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route
