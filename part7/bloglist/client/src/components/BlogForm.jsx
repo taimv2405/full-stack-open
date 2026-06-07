@@ -1,18 +1,31 @@
 import { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
+import { useBlogMutations } from '../hooks/useBlogs';
+import { useNotification } from '../contexts/NotificationContext';
+import { useNavigate } from 'react-router-dom';
 
-const BlogForm = ({ onCreate }) => {
+const BlogForm = () => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [url, setUrl] = useState('');
+  const { notify, notifyError } = useNotification();
+  const { createBlog } = useBlogMutations();
+  const navigate = useNavigate();
 
   const handleCreateBlog = async (event) => {
     event.preventDefault();
-    const success = await onCreate({ title, author, url });
-    if (success) {
+    try {
+      const createdBlog = await createBlog({ title, author, url });
+      const label = createdBlog.author
+        ? `${createdBlog.title} by ${createdBlog.author}`
+        : createdBlog.title;
+      notify(`a new blog ${label} added`, 'success');
       setTitle('');
       setAuthor('');
       setUrl('');
+      navigate('/');
+    } catch (error) {
+      notifyError(error);
     }
   };
 

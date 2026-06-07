@@ -30,7 +30,19 @@ export const NotificationContextProvider = ({ children }) => {
     timerRef.current = setTimeout(() => dispatch({ type: 'CLEAR' }), 5000);
   }, []);
 
-  const value = useMemo(() => ({ notification, notify }), [notification, notify]);
+  const notifyError = useCallback(
+    (error) => {
+      const message = error.response?.data?.error ?? 'Something went wrong';
+      console.error(message);
+      notify(message, 'error');
+    },
+    [notify],
+  );
+
+  const value = useMemo(
+    () => ({ notification, notify, notifyError }),
+    [notification, notify, notifyError],
+  );
 
   return (
     <NotificationContext.Provider value={value}>

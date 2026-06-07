@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { ErrorBoundary, getErrorMessage } from 'react-error-boundary';
-import blogService from './services/blogs';
 import loginService from './services/login';
 import Notification from './components/Notification';
 import BlogForm from './components/BlogForm';
@@ -17,22 +16,18 @@ import {
   Alert,
 } from '@mui/material';
 import { useNotification } from './contexts/NotificationContext';
+import { setToken } from './requests';
 
 const App = () => {
   const navigate = useNavigate();
-  const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const { notify } = useNotification();
-
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+  const { notify, notifyError } = useNotification();
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser');
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      blogService.setToken(user.token);
+      setToken(user.token);
       setUser(user);
     }
   }, []);
@@ -41,14 +36,13 @@ const App = () => {
     try {
       const user = await loginService.login({ username, password });
       window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user));
-      blogService.setToken(user.token);
+      setToken(user.token);
       setUser(user);
       notify('Logged in successfully', 'success');
       navigate('/');
       return true;
     } catch (error) {
-      console.error(error.response?.data?.error);
-      notify(error.response?.data?.error ?? 'Something went wrong', 'error');
+      notifyError(error);
       return false;
     }
   };
@@ -56,54 +50,10 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.removeItem('loggedBloglistUser');
     setUser(null);
-    blogService.setToken(null);
+    setToken(null);
     notify('Logged out', 'success');
     navigate('/');
   };
-
-  const handleCreateBlog = async (blogInfo) => {
-    try {
-      const createdBlog = await blogService.create(blogInfo);
-      setBlogs([...blogs, createdBlog]);
-
-      const label = createdBlog.author
-        ? `${createdBlog.title} by ${createdBlog.author}`
-        : createdBlog.title;
-      notify(`a new blog ${label} added`, 'success');
-      navigate('/');
-      return true;
-    } catch (error) {
-      console.error(error.response?.data?.error);
-      notify(error.response?.data?.error ?? 'Something went wrong', 'error');
-      return false;
-    }
-  };
-
-  const handleLike = async (id, blogInfo) => {
-    try {
-      const updatedBlog = await blogService.update(id, blogInfo);
-      setBlogs(blogs.map((blog) => (blog.id === id ? updatedBlog : blog)));
-    } catch (error) {
-      console.error(error.response?.data?.error);
-      notify(error.response?.data?.error ?? 'Something went wrong', 'error');
-    }
-  };
-
-  const handleRemove = async (id) => {
-    try {
-      await blogService.remove(id);
-      setBlogs(blogs.filter((blog) => blog.id !== id));
-      navigate('/');
-      return true;
-    } catch (error) {
-      console.error(error.response?.data?.error);
-      notify(error.response?.data?.error ?? 'Something went wrong', 'error');
-      return false;
-    }
-  };
-
-  const match = useMatch('/blogs/:id');
-  const blog = match ? blogs.find((blog) => blog.id === match.params.id) : null;
 
   const navBtn = {
     '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.3)' },
@@ -158,22 +108,9 @@ const App = () => {
         <Notification />
 
         <Routes>
-          <Route path="/" element={<Blogs blogs={blogs} />} />
-          <Route
-            path="/blogs/:id"
-            element={
-              <Blog
-                blog={blog}
-                onLike={handleLike}
-                user={user}
-                onRemove={handleRemove}
-              />
-            }
-          />
-          <Route
-            path="/blogs/create"
-            element={<BlogForm onCreate={handleCreateBlog} />}
-          />
+          <Route path="/" element={<Blogs />} />
+          <Route path="/blogs/:id" element={<Blog user={user} />} />
+          <Route path="/blogs/create" element={<BlogForm />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route
             path="*"
