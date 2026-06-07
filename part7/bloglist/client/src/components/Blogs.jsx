@@ -1,6 +1,15 @@
 import { Link } from 'react-router-dom';
+import { useBlogs } from '../hooks/useBlogs';
+import { Typography } from '@mui/material';
 
-const Blogs = ({ blogs }) => {
+const Blogs = () => {
+  const { blogs, isPending, isError } = useBlogs();
+  if (isPending) {
+    return <Typography>Loading blogs...</Typography>;
+  }
+  if (isError) {
+    return <Typography>Could not load blogs</Typography>;
+  }
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
 
   return (
