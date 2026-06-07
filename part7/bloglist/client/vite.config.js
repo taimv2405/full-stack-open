@@ -11,6 +11,7 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    open: true,
   },
   test: {
     environment: 'jsdom',
