@@ -52,4 +52,12 @@ export const NotificationContextProvider = ({ children }) => {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components -- hook colocated intentionally
-export const useNotification = () => useContext(NotificationContext);
+export const useNotification = () => {
+  const context = useContext(NotificationContext);
+  if (!context) {
+    throw new Error(
+      'useNotification must be used within a NotificationContextProvider',
+    );
+  }
+  return context;
+};
