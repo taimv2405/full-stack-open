@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom';
+import { ErrorBoundary, getErrorMessage } from 'react-error-boundary';
 import blogService from './services/blogs';
 import loginService from './services/login';
 import Notification from './components/Notification';
@@ -7,7 +8,14 @@ import BlogForm from './components/BlogForm';
 import Login from './components/Login';
 import Blogs from './components/Blogs';
 import Blog from './components/Blog';
-import { Container, AppBar, Toolbar, Button, Typography } from '@mui/material';
+import {
+  Container,
+  AppBar,
+  Toolbar,
+  Button,
+  Typography,
+  Alert,
+} from '@mui/material';
 
 const App = () => {
   const navigate = useNavigate();
@@ -134,27 +142,45 @@ const App = () => {
         </Toolbar>
       </AppBar>
 
-      <Notification notification={notification} />
+      <ErrorBoundary
+        fallbackRender={({ error, resetErrorBoundary }) => (
+          <div role="alert">
+            <Alert severity="error">
+              Something went wrong:
+              <pre>{getErrorMessage(error)}</pre>
+            </Alert>
+            <Button
+              variant="contained"
+              onClick={resetErrorBoundary}
+              sx={{ mt: 1 }}
+            >
+              Try again
+            </Button>
+          </div>
+        )}
+      >
+        <Notification notification={notification} />
 
-      <Routes>
-        <Route path="/" element={<Blogs blogs={blogs} />} />
-        <Route
-          path="/blogs/:id"
-          element={
-            <Blog
-              blog={blog}
-              onLike={handleLike}
-              user={user}
-              onRemove={handleRemove}
-            />
-          }
-        />
-        <Route
-          path="/blogs/create"
-          element={<BlogForm onCreate={handleCreateBlog} />}
-        />
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<Blogs blogs={blogs} />} />
+          <Route
+            path="/blogs/:id"
+            element={
+              <Blog
+                blog={blog}
+                onLike={handleLike}
+                user={user}
+                onRemove={handleRemove}
+              />
+            }
+          />
+          <Route
+            path="/blogs/create"
+            element={<BlogForm onCreate={handleCreateBlog} />}
+          />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        </Routes>
+      </ErrorBoundary>
     </Container>
   );
 };
