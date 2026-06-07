@@ -1,0 +1,23 @@
+@port = {{$dotenv PORT}}
+@token = {{$dotenv TOKEN}}
+@baseUrl = http://localhost:{{port}}
+
+### Get all blogs
+GET {{baseUrl}}/api/blogs
+
+### Create blog
+POST {{baseUrl}}/api/blogs
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "title": "Canonical string reduction",
+    "author": "Edsger W. Dijkstra",
+    "url": "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+    "likes": 12
+}
+
+### Delete blog
+DELETE {{baseUrl}}/api/blogs/6a154270518b4e457477fc04
+Content-Type: application/json
+Authorization: Bearer {{token}}
