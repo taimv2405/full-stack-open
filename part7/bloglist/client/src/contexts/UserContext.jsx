@@ -38,4 +38,10 @@ export const UserContextProvider = ({ children }) => {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components -- hook colocated intentionally
-export const useUser = () => useContext(UserContext);
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error('useUser must be used within a UserContextProvider');
+  }
+  return context;
+};
