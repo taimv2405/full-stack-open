@@ -179,6 +179,14 @@ const App = () => {
             element={<BlogForm onCreate={handleCreateBlog} />}
           />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route
+            path="*"
+            element={
+              <Typography variant="h5" component="h1" sx={{ mt: 1 }}>
+                404 - Page not found
+              </Typography>
+            }
+          />
         </Routes>
       </ErrorBoundary>
     </Container>
