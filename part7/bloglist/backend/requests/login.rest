@@ -1,0 +1,11 @@
+@port = {{$dotenv PORT}}
+@baseUrl = http://localhost:{{port}}
+
+### Login
+POST {{baseUrl}}/api/login
+Content-Type: application/json
+
+{
+    "username": "taimv",
+    "password": "12345678"
+}

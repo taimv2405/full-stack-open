@@ -1,0 +1,15 @@
+@port = {{$dotenv PORT}}
+@baseUrl = http://localhost:{{port}}
+
+### Create user
+POST {{baseUrl}}/api/users
+Content-Type: application/json
+
+{
+    "username": "taimv",
+    "password": "12345678",
+    "name": "Tai Vo"
+}
+
+### Get all users
+GET {{baseUrl}}/api/users
