@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useBlog, useBlogMutations } from '../hooks/useBlogs';
 import { useNotificationActions } from '../stores/notificationStore';
 import { useUser } from '../stores/userStore';
+import { Comments } from './Comments';
 
 const Blog = () => {
   const { id } = useParams();
@@ -83,6 +84,7 @@ const Blog = () => {
           </Button>
         )}
       </Box>
+      <Comments />
     </Card>
   );
 };

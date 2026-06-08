@@ -5,6 +5,7 @@ import {
   createBlog,
   updateBlog,
   removeBlog,
+  addComment,
 } from '../services/blogs';
 
 const BLOGS_KEY = ['blogs'];
@@ -52,6 +53,16 @@ export const useBlogMutations = () => {
     },
   });
 
+  const addCommentMutation = useMutation({
+    mutationFn: addComment,
+    onSuccess: (updatedBlog) => {
+      queryClient.setQueryData(BLOGS_KEY, (blogs = []) =>
+        blogs.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog)),
+      );
+      queryClient.setQueryData(['blogs', updatedBlog.id], updatedBlog);
+    },
+  });
+
   const updateBlogMutation = useMutation({
     mutationFn: updateBlog,
     onSuccess: (updatedBlog) => {
@@ -74,6 +85,7 @@ export const useBlogMutations = () => {
 
   return {
     createBlog: (blogInfo) => createBlogMutation.mutateAsync(blogInfo),
+    addComment: (payload) => addCommentMutation.mutateAsync(payload),
     updateBlog: (updatePayload) =>
       updateBlogMutation.mutateAsync(updatePayload),
     removeBlog: (id) => removeBlogMutation.mutateAsync(id),
