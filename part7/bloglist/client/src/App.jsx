@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useUser } from './stores/userStore';
 import Users from './components/Users';
+import User from './components/User';
 
 const App = () => {
   const user = useUser();
@@ -75,10 +76,11 @@ const App = () => {
 
         <Routes>
           <Route path="/" element={<Blogs />} />
-          <Route path="/users" element={<Users />} />
           <Route path="/blogs/:id" element={<Blog />} />
           <Route path="/blogs/create" element={<BlogForm />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/users/:id" element={<User />} />
           <Route
             path="*"
             element={
