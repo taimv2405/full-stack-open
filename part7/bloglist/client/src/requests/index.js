@@ -1,13 +1,12 @@
 import axios from 'axios';
+import { getUserToken } from '../stores/userStore';
+
 const baseUrl = '/api/blogs';
 
-let token = null;
-
-export const setToken = (newToken) => {
-  token = newToken;
+const getAuthHeader = () => {
+  const token = getUserToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };
-
-const getAuthHeader = () => (token ? { Authorization: `Bearer ${token}` } : {});
 
 export const getBlogs = async () => {
   const response = await axios.get(baseUrl);

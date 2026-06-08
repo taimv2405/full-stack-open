@@ -15,12 +15,13 @@ import {
   Alert,
 } from '@mui/material';
 import { useNotificationActions } from './stores/notificationStore';
-import { useUser } from './contexts/UserContext';
+import { useUser, useUserActions } from './stores/userStore';
 
 const App = () => {
   const navigate = useNavigate();
   const { notify, notifyError } = useNotificationActions();
-  const { user, login, logout } = useUser();
+  const user = useUser();
+  const { login, logout } = useUserActions();
 
   const handleLogin = async (username, password) => {
     try {
