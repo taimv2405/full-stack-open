@@ -1,19 +1,16 @@
 import { create } from 'zustand';
-
-const STORAGE_KEY = 'loggedBloglistUser';
+import { getUser, saveUser, removeUser } from '../services/persistentUser';
 
 const useUserStore = create((set) => {
-  const json = window.localStorage.getItem(STORAGE_KEY);
-  const storedUser = json ? JSON.parse(json) : null;
   return {
-    user: storedUser,
+    user: getUser(),
     actions: {
       login: (loggedUser) => {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(loggedUser));
+        saveUser(loggedUser);
         set(() => ({ user: loggedUser }));
       },
       logout: () => {
-        window.localStorage.removeItem(STORAGE_KEY);
+        removeUser();
         set(() => ({ user: null }));
       },
     },
