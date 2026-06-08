@@ -20,6 +20,17 @@ export const createBlog = async (newBlog) => {
   return response.data;
 };
 
+export const addComment = async (payload) => {
+  const response = await axios.post(
+    `${baseUrl}/${payload.id}/comments`,
+    { comment: payload.comment },
+    {
+      headers: getAuthHeader(),
+    },
+  );
+  return response.data;
+};
+
 export const updateBlog = async (updatePayload) => {
   const response = await axios.put(
     `${baseUrl}/${updatePayload.id}`,

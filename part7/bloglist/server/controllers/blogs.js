@@ -28,6 +28,32 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   response.status(201).json(savedBlog);
 });
 
+blogsRouter.post(
+  '/:id/comments',
+  middleware.userExtractor,
+  async (request, response) => {
+    const blog = await Blog.findById(request.params.id);
+    if (!blog) return response.status(404).end();
+
+    const { comment } = request.body;
+
+    if (typeof comment !== 'string') {
+      return response.status(400).json({ error: 'comment must be a string' });
+    }
+    const trimmedComment = comment.trim();
+    if (!trimmedComment) {
+      return response.status(400).json({ error: 'comment cannot be empty' });
+    }
+
+    blog.comments.push(trimmedComment);
+
+    const savedBlog = await blog.save();
+    await savedBlog.populate('user', { username: 1, name: 1 });
+
+    response.status(201).json(savedBlog);
+  },
+);
+
 blogsRouter.delete(
   '/:id',
   middleware.userExtractor,
