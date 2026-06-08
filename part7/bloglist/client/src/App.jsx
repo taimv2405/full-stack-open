@@ -1,11 +1,11 @@
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import { ErrorBoundary, getErrorMessage } from 'react-error-boundary';
-import loginService from './services/login';
 import Notification from './components/Notification';
 import BlogForm from './components/BlogForm';
 import Login from './components/Login';
 import Blogs from './components/Blogs';
 import Blog from './components/Blog';
+import Logout from './components/Logout';
 import {
   Container,
   AppBar,
@@ -14,33 +14,10 @@ import {
   Typography,
   Alert,
 } from '@mui/material';
-import { useNotificationActions } from './stores/notificationStore';
-import { useUser, useUserActions } from './stores/userStore';
+import { useUser } from './stores/userStore';
 
 const App = () => {
-  const navigate = useNavigate();
-  const { notify, notifyError } = useNotificationActions();
   const user = useUser();
-  const { login, logout } = useUserActions();
-
-  const handleLogin = async (username, password) => {
-    try {
-      const loggedUser = await loginService.login({ username, password });
-      login(loggedUser);
-      notify('Logged in successfully', 'success');
-      navigate('/');
-      return true;
-    } catch (error) {
-      notifyError(error);
-      return false;
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    notify('Logged out', 'success');
-    navigate('/');
-  };
 
   const navBtn = {
     '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.3)' },
@@ -67,9 +44,7 @@ const App = () => {
               <Button component={Link} to="/blogs/create" sx={navBtn}>
                 new blog
               </Button>
-              <Button onClick={handleLogout} sx={navBtn}>
-                logout
-              </Button>
+              <Logout buttonStyle={navBtn} />
             </>
           )}
         </Toolbar>
@@ -98,7 +73,7 @@ const App = () => {
           <Route path="/" element={<Blogs />} />
           <Route path="/blogs/:id" element={<Blog />} />
           <Route path="/blogs/create" element={<BlogForm />} />
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/login" element={<Login />} />
           <Route
             path="*"
             element={

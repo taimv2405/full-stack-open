@@ -1,16 +1,28 @@
 import { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
+import loginService from '../services/login';
+import { useUserActions } from '../stores/userStore';
+import { useNotificationActions } from '../stores/notificationStore';
+import { useNavigate } from 'react-router-dom';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useUserActions();
+  const { notify, notifyError } = useNotificationActions();
+  const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    const success = await onLogin(username, password);
-    if (success) {
+    try {
+      const loggedUser = await loginService.login({ username, password });
+      login(loggedUser);
       setUsername('');
       setPassword('');
+      notify('Logged in successfully', 'success');
+      navigate('/');
+    } catch (error) {
+      notifyError(error);
     }
   };
 
