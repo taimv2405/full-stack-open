@@ -15,6 +15,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useUser } from './stores/userStore';
+import Users from './components/Users';
 
 const App = () => {
   const user = useUser();
@@ -33,6 +34,9 @@ const App = () => {
           </Typography>
           <Button component={Link} to="/" sx={navBtn}>
             blogs
+          </Button>
+          <Button component={Link} to="/users" sx={navBtn}>
+            users
           </Button>
           {!user && (
             <Button component={Link} to="/login" sx={navBtn}>
@@ -71,6 +75,7 @@ const App = () => {
 
         <Routes>
           <Route path="/" element={<Blogs />} />
+          <Route path="/users" element={<Users />} />
           <Route path="/blogs/:id" element={<Blog />} />
           <Route path="/blogs/create" element={<BlogForm />} />
           <Route path="/login" element={<Login />} />
