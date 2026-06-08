@@ -2,12 +2,12 @@ import { Button, Box, Card, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useBlogs, useBlogMutations } from '../hooks/useBlogs';
 import { useNotificationActions } from '../stores/notificationStore';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../stores/userStore';
 
 const Blog = () => {
   const navigate = useNavigate();
   const { notify, notifyError } = useNotificationActions();
-  const { user } = useUser();
+  const user = useUser();
   const { blogs, isPending, isError } = useBlogs();
   const { updateBlog, removeBlog } = useBlogMutations();
   const { id } = useParams();
