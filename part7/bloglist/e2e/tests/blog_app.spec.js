@@ -115,7 +115,7 @@ describe('Blog app', () => {
         await page.getByRole('button', { name: 'remove' }).click();
         await page.getByRole('heading', { name: 'blogs', level: 1 }).waitFor();
         await expect(
-          page.getByText(`${GOTO.title} by ${GOTO.author}`),
+          page.getByRole('link', { name: `${GOTO.title} by ${GOTO.author}` }),
         ).not.toBeVisible();
       });
 
