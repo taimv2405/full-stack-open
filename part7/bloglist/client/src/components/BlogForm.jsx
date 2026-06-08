@@ -3,6 +3,7 @@ import { useBlogMutations } from '../hooks/useBlogs';
 import { useNotificationActions } from '../stores/notificationStore';
 import { useNavigate } from 'react-router-dom';
 import { useField } from '../hooks/useField';
+import { Typography } from '@mui/material';
 
 const BlogForm = () => {
   const { notify, notifyError } = useNotificationActions();
@@ -39,7 +40,9 @@ const BlogForm = () => {
 
   return (
     <>
-      <h2>create new</h2>
+      <Typography component="h1" variant="h5" sx={{ mt: 1, mb: 1 }}>
+        New Blog
+      </Typography>
       <Box
         component="form"
         onSubmit={handleCreateBlog}

@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useUsers } from '../hooks/useUsers';
-import { Typography } from '@mui/material';
 import {
+  Typography,
+  Link,
   Table,
   TableBody,
   TableCell,
@@ -40,7 +41,9 @@ const Users = () => {
             {sortedUsers.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
-                  <Link to={`/users/${user.id}`}>{user.name}</Link>
+                  <Link component={RouterLink} to={`/users/${user.id}`}>
+                    {user.name}
+                  </Link>
                 </TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.blogs.length}</TableCell>

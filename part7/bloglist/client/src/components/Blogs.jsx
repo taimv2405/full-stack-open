@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useBlogs } from '../hooks/useBlogs';
-import { Typography } from '@mui/material';
+import { Typography, List, ListItem, ListItemText, Link } from '@mui/material';
 
 const Blogs = () => {
   const { blogs, isPending, isError } = useBlogs();
@@ -13,19 +13,25 @@ const Blogs = () => {
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
 
   return (
-    <div>
-      <h1>blogs</h1>
-      <ul>
+    <>
+      <Typography component="h1" variant="h5" sx={{ mt: 1 }}>
+        Blogs
+      </Typography>
+      <List>
         {sortedBlogs.map((blog) => (
-          <li key={blog.id}>
-            <Link to={`/blogs/${blog.id}`}>
-              {blog.title}
-              {blog.author && <span> by {blog.author}</span>}
-            </Link>
-          </li>
+          <ListItem key={blog.id} disablePadding>
+            <ListItemText
+              primary={
+                <Link component={RouterLink} to={`/blogs/${blog.id}`}>
+                  {blog.title}
+                  {blog.author && ` by ${blog.author}`}
+                </Link>
+              }
+            />
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </>
   );
 };
 

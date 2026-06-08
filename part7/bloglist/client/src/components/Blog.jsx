@@ -1,4 +1,4 @@
-import { Button, Box, Card, Typography } from '@mui/material';
+import { Button, Box, Card, Typography, Link } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useBlog, useBlogMutations } from '../hooks/useBlogs';
 import { useNotificationActions } from '../stores/notificationStore';
@@ -62,12 +62,14 @@ const Blog = () => {
         marginTop: 2,
       }}
     >
-      <h1 style={{ margin: 0 }}>{blog.title}</h1>
-      {blog.author && <p style={{ margin: 0 }}>by {blog.author}</p>}
-      <a href={blog.url}>{blog.url}</a>
-      {blog.user && <div>Added by {blog.user.name}</div>}
+      <Typography component="h1" variant="h5">
+        {blog.title}
+      </Typography>
+      {blog.author && <Typography>by {blog.author}</Typography>}
+      <Link href={blog.url}>{blog.url}</Link>
+      {blog.user && <Typography>Added by {blog.user.name}</Typography>}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <span>{blog.likes} likes</span>
+        <Typography component="span">{blog.likes} likes</Typography>
         {user && (
           <Button onClick={handleLike} variant="outlined" size="small">
             like

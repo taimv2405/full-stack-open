@@ -4,6 +4,7 @@ import { useUserActions } from '../stores/userStore';
 import { useNotificationActions } from '../stores/notificationStore';
 import { useNavigate } from 'react-router-dom';
 import { useField } from '../hooks/useField';
+import { Typography } from '@mui/material';
 
 const Login = () => {
   const username = useField('text');
@@ -35,7 +36,9 @@ const Login = () => {
 
   return (
     <>
-      <h1>login to the application</h1>
+      <Typography component="h1" variant="h5" sx={{ mt: 1, mb: 1 }}>
+        Login
+      </Typography>
 
       <Box
         component="form"

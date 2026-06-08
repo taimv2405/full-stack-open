@@ -41,7 +41,7 @@ export const Comments = () => {
 
   return (
     <>
-      <Typography component="h1" variant="h5" sx={{ mt: 1 }}>
+      <Typography component="h2" variant="h6" sx={{ mt: 1 }}>
         Comments
       </Typography>
       {user ? (

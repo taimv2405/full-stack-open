@@ -1,5 +1,12 @@
-import { Card, Typography, List, ListItem, ListItemText } from '@mui/material';
-import { useParams, Link } from 'react-router-dom';
+import {
+  Card,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Link,
+} from '@mui/material';
+import { useParams, Link as RouterLink } from 'react-router-dom';
 import { useUsers } from '../hooks/useUsers';
 
 const User = () => {
@@ -33,12 +40,16 @@ const User = () => {
       <Typography component="h1" variant="h5" sx={{ mt: 1 }}>
         {user.name}
       </Typography>
-      <Typography style={{ margin: 0 }}>added blogs</Typography>
+      <Typography>added blogs</Typography>
       <List>
         {user.blogs.map((blog) => (
           <ListItem key={blog.id} disablePadding>
             <ListItemText
-              primary={<Link to={`/blogs/${blog.id}`}>{blog.title}</Link>}
+              primary={
+                <Link component={RouterLink} to={`/blogs/${blog.id}`}>
+                  {blog.title}
+                </Link>
+              }
             />
           </ListItem>
         ))}
