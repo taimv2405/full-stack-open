@@ -1,26 +1,24 @@
 import { Button, Box, Card, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useBlogs, useBlogMutations } from '../hooks/useBlogs';
+import { useBlog, useBlogMutations } from '../hooks/useBlogs';
 import { useNotificationActions } from '../stores/notificationStore';
 import { useUser } from '../stores/userStore';
 
 const Blog = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { notify, notifyError } = useNotificationActions();
   const user = useUser();
-  const { blogs, isPending, isError } = useBlogs();
+  const { blog, isPending, isError } = useBlog(id);
   const { updateBlog, removeBlog } = useBlogMutations();
-  const { id } = useParams();
 
   if (isPending) {
-    return <Typography>Loading blogs...</Typography>;
+    return <Typography>Loading blog...</Typography>;
   }
 
   if (isError) {
-    return <Typography>Could not load blogs</Typography>;
+    return <Typography>Could not load blog</Typography>;
   }
-
-  const blog = blogs.find((blog) => blog.id === id);
 
   if (!blog) {
     return <Typography>404 - Blog not found</Typography>;
