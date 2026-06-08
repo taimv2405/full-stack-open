@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBlogs, createBlog, updateBlog, removeBlog } from '../requests';
+import { getBlogs, createBlog, updateBlog, removeBlog } from '../services/blogs';
 
 const BLOGS_KEY = ['blogs'];
 
