@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getBlogs, createBlog, updateBlog, removeBlog } from '../services/blogs';
+import {
+  getBlogs,
+  getBlog,
+  createBlog,
+  updateBlog,
+  removeBlog,
+} from '../services/blogs';
 
 const BLOGS_KEY = ['blogs'];
 
@@ -13,6 +19,21 @@ export const useBlogs = () => {
 
   return {
     blogs: result.data,
+    isPending: result.isPending,
+    isError: result.isError,
+  };
+};
+
+export const useBlog = (id) => {
+  const result = useQuery({
+    queryKey: ['blogs', id],
+    queryFn: () => getBlog(id),
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+
+  return {
+    blog: result.data,
     isPending: result.isPending,
     isError: result.isError,
   };
@@ -37,6 +58,7 @@ export const useBlogMutations = () => {
       queryClient.setQueryData(BLOGS_KEY, (blogs = []) =>
         blogs.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog)),
       );
+      queryClient.setQueryData(['blogs', updatedBlog.id], updatedBlog);
     },
   });
 
@@ -46,6 +68,7 @@ export const useBlogMutations = () => {
       queryClient.setQueryData(BLOGS_KEY, (blogs = []) =>
         blogs.filter((blog) => blog.id !== id),
       );
+      queryClient.removeQueries({ queryKey: ['blogs', id] });
     },
   });
 
