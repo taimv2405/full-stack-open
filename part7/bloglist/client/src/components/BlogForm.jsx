@@ -1,28 +1,36 @@
-import { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
 import { useBlogMutations } from '../hooks/useBlogs';
 import { useNotificationActions } from '../stores/notificationStore';
 import { useNavigate } from 'react-router-dom';
+import { useField } from '../hooks/useField';
 
 const BlogForm = () => {
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [url, setUrl] = useState('');
   const { notify, notifyError } = useNotificationActions();
   const { createBlog } = useBlogMutations();
   const navigate = useNavigate();
+  const title = useField('text');
+  const author = useField('text');
+  const url = useField('text');
+
+  const resetFields = () => {
+    title.reset();
+    author.reset();
+    url.reset();
+  };
 
   const handleCreateBlog = async (event) => {
     event.preventDefault();
     try {
-      const createdBlog = await createBlog({ title, author, url });
+      const createdBlog = await createBlog({
+        title: title.inputProps.value,
+        author: author.inputProps.value,
+        url: url.inputProps.value,
+      });
       const label = createdBlog.author
         ? `${createdBlog.title} by ${createdBlog.author}`
         : createdBlog.title;
       notify(`a new blog ${label} added`, 'success');
-      setTitle('');
-      setAuthor('');
-      setUrl('');
+      resetFields();
       navigate('/');
     } catch (error) {
       notifyError(error);
@@ -42,24 +50,9 @@ const BlogForm = () => {
           alignItems: 'flex-start',
         }}
       >
-        <TextField
-          label="title"
-          type="text"
-          value={title}
-          onChange={({ target }) => setTitle(target.value)}
-        />
-        <TextField
-          label="author"
-          type="text"
-          value={author}
-          onChange={({ target }) => setAuthor(target.value)}
-        />
-        <TextField
-          label="url"
-          type="text"
-          value={url}
-          onChange={({ target }) => setUrl(target.value)}
-        />
+        <TextField label="title" {...title.inputProps} />
+        <TextField label="author" {...author.inputProps} />
+        <TextField label="url" {...url.inputProps} />
         <Button type="submit" variant="contained">
           create
         </Button>

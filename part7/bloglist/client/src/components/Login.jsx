@@ -1,24 +1,31 @@
-import { useState } from 'react';
 import { TextField, Button, Box } from '@mui/material';
 import loginService from '../services/login';
 import { useUserActions } from '../stores/userStore';
 import { useNotificationActions } from '../stores/notificationStore';
 import { useNavigate } from 'react-router-dom';
+import { useField } from '../hooks/useField';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const username = useField('text');
+  const password = useField('password');
   const { login } = useUserActions();
   const { notify, notifyError } = useNotificationActions();
   const navigate = useNavigate();
 
+  const resetFields = () => {
+    username.reset();
+    password.reset();
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const loggedUser = await loginService.login({ username, password });
+      const loggedUser = await loginService.login({
+        username: username.inputProps.value,
+        password: password.inputProps.value,
+      });
       login(loggedUser);
-      setUsername('');
-      setPassword('');
+      resetFields();
       notify('Logged in successfully', 'success');
       navigate('/');
     } catch (error) {
@@ -40,18 +47,8 @@ const Login = () => {
           alignItems: 'flex-start',
         }}
       >
-        <TextField
-          label="username"
-          type="text"
-          value={username}
-          onChange={({ target }) => setUsername(target.value)}
-        />
-        <TextField
-          label="password"
-          type="password"
-          value={password}
-          onChange={({ target }) => setPassword(target.value)}
-        />
+        <TextField label="username" {...username.inputProps} />
+        <TextField label="password" {...password.inputProps} />
         <Button type="submit" variant="contained">
           login
         </Button>
