@@ -14,12 +14,12 @@ import {
   Typography,
   Alert,
 } from '@mui/material';
-import { useNotification } from './contexts/NotificationContext';
+import { useNotificationActions } from './stores/notificationStore';
 import { useUser } from './contexts/UserContext';
 
 const App = () => {
   const navigate = useNavigate();
-  const { notify, notifyError } = useNotification();
+  const { notify, notifyError } = useNotificationActions();
   const { user, login, logout } = useUser();
 
   const handleLogin = async (username, password) => {
